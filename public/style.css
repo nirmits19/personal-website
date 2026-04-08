@@ -14,6 +14,22 @@
 
 html { scroll-behavior: smooth; }
 
+/* ─── Inferno Background ────────────────────────────────────── */
+#inferno-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url('inferno.jpg') center / cover no-repeat;
+  opacity: var(--bg-opacity, 0.04);
+}
+#inferno-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(180, 30, 10, var(--red-opacity, 0));
+}
+
 body {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 18px;
@@ -243,18 +259,6 @@ section { margin-bottom: 5rem; }
   margin-bottom: 0;
 }
 
-.book-with-cover .book-inner {
-  display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
-}
-
-.book-cover {
-  width: 72px;
-  flex-shrink: 0;
-  opacity: 0.9;
-  filter: contrast(1.05);
-}
 
 /* ─── Pragma (Current Life) ─────────────────────────────────── */
 .pragma-list {
