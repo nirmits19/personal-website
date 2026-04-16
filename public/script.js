@@ -12,10 +12,11 @@
   update();
 })();
 
-// ─── Live time stamp ──────────────────────────────────────────
+// ─── Live time stamp (header + hero clock) ───────────────────
 (function () {
-  const el = document.getElementById('time');
-  if (!el) return;
+  const frameEl = document.getElementById('time');
+  const heroEl  = document.getElementById('hero-clock');
+  if (!frameEl && !heroEl) return;
 
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   // Short TZ label (e.g. "GMT", "PDT") via formatToParts
@@ -36,7 +37,9 @@
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
     const ss = String(now.getSeconds()).padStart(2, '0');
-    el.textContent = `${hh}:${mm}:${ss} ${tzLabel()}`;
+    const label = tzLabel();
+    if (frameEl) frameEl.textContent = `${hh}:${mm}:${ss} ${label}`;
+    if (heroEl)  heroEl.textContent  = `${hh}:${mm}:${ss}`;
   }
 
   update();
