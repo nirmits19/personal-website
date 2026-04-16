@@ -5,7 +5,7 @@
 
   function update() {
     const heroBottom = hero ? hero.offsetHeight : window.innerHeight;
-    frame.classList.toggle('scrolled', window.scrollY > heroBottom * 0.85);
+    frame.classList.toggle('scrolled', window.scrollY > heroBottom * 0.6);
   }
 
   window.addEventListener('scroll', update, { passive: true });
