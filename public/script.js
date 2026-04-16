@@ -49,7 +49,12 @@
     const ss = String(now.getSeconds()).padStart(2, '0');
     const label = tzLabel();
     if (frameEl) frameEl.innerHTML = `${hh}:${mm}:${ss}<span class="tz-label"> ${label}</span>`;
-    if (heroEl)  heroEl.textContent  = `${hh}:${mm}:${ss}`;
+    if (heroEl) {
+      heroEl.innerHTML =
+        `<span class="d">${hh}</span><span class="colon">:</span>` +
+        `<span class="d">${mm}</span><span class="colon">:</span>` +
+        `<span class="d">${ss}</span>`;
+    }
   }
 
   update();
@@ -243,3 +248,80 @@ document.addEventListener('DOMContentLoaded', () => {
     '.hero.visible, .section.visible, footer.visible { opacity: 1 !important; transform: none !important; }';
   document.head.appendChild(style);
 });
+
+// ─── Hero parallax ────────────────────────────────────────────
+// Image drifts at ~0.35× scroll speed — cinematic layered feel.
+(function () {
+  const img = document.querySelector('.hero-image');
+  if (!img) return;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+  let latestY = 0, ticking = false;
+  function onScroll() {
+    latestY = window.scrollY;
+    if (!ticking) {
+      requestAnimationFrame(apply);
+      ticking = true;
+    }
+  }
+  function apply() {
+    img.style.transform = `translate3d(0, ${latestY * 0.35}px, 0)`;
+    ticking = false;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  apply();
+})();
+
+// ─── Inertial smooth scroll (desktop only) ───────────────────
+// Lerps scroll position toward wheel target for a glassy, raviklaassens-style feel.
+// Skipped on touch (iOS already has great momentum) and when reduced-motion is set.
+(function () {
+  if (matchMedia('(pointer: coarse)').matches) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const ease = 0.09;
+  let target  = window.scrollY;
+  let current = target;
+  let raf = null;
+  let animating = false;
+
+  function clamp(v) {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    return Math.max(0, Math.min(v, max));
+  }
+
+  function onWheel(e) {
+    // Respect modifier keys (pinch-zoom, horizontal gesture, browser shortcuts)
+    if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    target = clamp(target + e.deltaY);
+    if (!animating) {
+      animating = true;
+      raf = requestAnimationFrame(tick);
+    }
+  }
+
+  function tick() {
+    current += (target - current) * ease;
+    if (Math.abs(target - current) < 0.4) {
+      current = target;
+      window.scrollTo(0, current);
+      animating = false;
+      raf = null;
+      return;
+    }
+    window.scrollTo(0, current);
+    raf = requestAnimationFrame(tick);
+  }
+
+  // Re-sync if scroll changes through other means (keyboard, scrollbar drag, anchor jump)
+  window.addEventListener('scroll', () => {
+    if (!animating) {
+      target = window.scrollY;
+      current = target;
+    }
+  }, { passive: true });
+
+  window.addEventListener('wheel', onWheel, { passive: false });
+})();
