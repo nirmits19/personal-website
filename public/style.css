@@ -415,6 +415,15 @@ footer {
   color: var(--ink-soft);
 }
 
+.footer-made {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: -1.2rem;
+}
+
 /* ─── Fade-in (softened) ───────────────────────────────────── */
 .section,
 .hero {
