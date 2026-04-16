@@ -290,10 +290,20 @@ document.addEventListener('DOMContentLoaded', () => {
     return Math.max(0, Math.min(v, max));
   }
 
+  const hero = document.querySelector('.hero');
+
   function onWheel(e) {
     // Respect modifier keys (pinch-zoom, horizontal gesture, browser shortcuts)
     if (e.ctrlKey || e.metaKey || e.shiftKey) return;
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    // Only lerp while the hero is still on screen — below the hero,
+    // fall back to native scroll so the rest of the page feels normal.
+    const heroBottom = hero ? hero.getBoundingClientRect().bottom : 0;
+    if (heroBottom <= 0) {
+      target = window.scrollY;
+      current = target;
+      return;
+    }
     e.preventDefault();
     target = clamp(target + e.deltaY);
     if (!animating) {
