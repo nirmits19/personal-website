@@ -80,7 +80,7 @@
     const cosH = (Math.cos(zenith * rad) - (sinDec * Math.sin(lat * rad))) / (cosDec * Math.cos(lat * rad));
     if (cosH > 1 || cosH < -1) return null; // no sunset
 
-    const H = (360 - deg * Math.acos(cosH)) / 15; // sunset
+    const H = (deg * Math.acos(cosH)) / 15; // sunset hour angle
     const T = H + RA - (0.06571 * t) - 6.622;
     let UT = T - lngHour;
     UT = ((UT % 24) + 24) % 24;
@@ -115,7 +115,7 @@
     const h = Math.floor(delta / 3600);
     const m = Math.floor((delta % 3600) / 60);
     const s = delta % 60;
-    el.textContent = `−${pad(h)}:${pad(m)}:${pad(s)} TO SUNSET`;
+    el.textContent = `−${pad(h)}:${pad(m)}:${pad(s)}`;
   }
 
   fetch('https://ipapi.co/json/')
