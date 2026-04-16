@@ -6,165 +6,235 @@
   <title>Nirmit Chanana</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <div id="inferno-bg"></div>
+  <!-- ─── Fixed Header Anchors ────────────────────────────────── -->
+  <div class="frame">
+    <div class="name-tag">Essayist</div>
+    <div class="time-stamp" id="time">00:00:00</div>
+  </div>
 
-  <header>
-    <h1>Nirmit Chanana</h1>
-    <p class="subtitle">On knowledge, contemplation &amp; the affairs of life</p>
-    <div class="header-rule"></div>
-    <p class="about-text">
-      I am a builder of things and a seeker of ideas — drawn equally to the rigour
-      of a well-reasoned argument and the quiet satisfaction of work done without
-      an audience. I believe the examined life is the only kind worth living,
-      and that most things worth knowing arrive slowly.
-    </p>
-    <blockquote>
-      "Waste no more time arguing about what a good man should be. Be one."
-      <cite>— Marcus Aurelius, Meditations</cite>
-    </blockquote>
+  <!-- ─── Hero ────────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-image">
+      <img src="cover.png" alt="" />
+    </div>
+    <div class="hero-meta">
+      <span class="hero-meta-label">Index</span>
+      <span class="hero-meta-value">MMXXVI</span>
+    </div>
   </header>
 
-  <nav>
-    <a href="#episteme">Episteme</a>
-    <span class="sep">·</span>
-    <a href="#theoria">Theoria</a>
-    <span class="sep">·</span>
-    <a href="#pragma">Pragma</a>
+  <!-- ─── Nav ─────────────────────────────────────────────────── -->
+  <nav class="primary-nav">
+    <a href="#episteme"><span class="nav-num">01</span> Episteme</a>
+    <a href="#theoria"><span class="nav-num">02</span> Theoria</a>
+    <a href="#pragma"><span class="nav-num">03</span> Pragma</a>
   </nav>
 
   <main>
 
-    <!-- EPISTEME: Writing -->
-    <section id="episteme">
-      <h2><span class="numeral">I.</span> Episteme</h2>
-      <p class="section-label">Knowledge — writings &amp; essays</p>
-      <div class="rule"></div>
-      <p class="section-intro">
-        What follows are attempts to think clearly about things that resist it.
-        Written not to persuade, but to understand.
-      </p>
+    <!-- ─── EPISTEME ──────────────────────────────────────────── -->
+    <section id="episteme" class="section">
+      <div class="section-head">
+        <div class="section-counter">01 / 03</div>
+        <h2 class="section-title">Episteme</h2>
+        <p class="section-kicker">Knowledge — writings &amp; essays</p>
+      </div>
 
-      <div class="essay-list">
+      <div class="section-body">
+        <p class="section-intro">
+          What follows are attempts to think clearly about things that resist it.
+          Written not to persuade, but to understand.
+        </p>
 
-        <article class="essay">
-          <h3>Your First Essay</h3>
-          <p class="essay-meta">April 2026</p>
-          <p>
-            Begin here. Write what you actually think — not what sounds correct,
-            but what survives honest scrutiny. The essay is a form of thinking aloud.
-          </p>
-          <a href="#" class="essay-link">Read →</a>
-        </article>
+        <div class="entry-list">
 
-        <article class="essay">
-          <h3>Another Title</h3>
-          <p class="essay-meta">April 2026</p>
-          <p>
-            A short description of the piece. What question does it wrestle with?
-            What, if anything, did you conclude?
-          </p>
-          <a href="#" class="essay-link">Read →</a>
-        </article>
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">01 / 02</span>
+              <span class="entry-date">April 2026</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Your First Essay</h3>
+              <p class="entry-copy">
+                Begin here. Write what you actually think — not what sounds correct,
+                but what survives honest scrutiny. The essay is a form of thinking aloud.
+              </p>
+              <a href="#" class="entry-link">Read</a>
+            </div>
+          </article>
 
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">02 / 02</span>
+              <span class="entry-date">April 2026</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Another Title</h3>
+              <p class="entry-copy">
+                A short description of the piece. What question does it wrestle with?
+                What, if anything, did you conclude?
+              </p>
+              <a href="#" class="entry-link">Read</a>
+            </div>
+          </article>
+
+        </div>
       </div>
     </section>
 
-    <!-- THEORIA: Literature -->
-    <section id="theoria">
-      <h2><span class="numeral">II.</span> Theoria</h2>
-      <p class="section-label">Contemplation — literature &amp; reading</p>
-      <div class="rule"></div>
-      <p class="section-intro">
-        A record of texts that have occupied my attention — some finished,
-        some ongoing, some merely intended. Each one a small commitment.
-      </p>
+    <!-- ─── THEORIA ───────────────────────────────────────────── -->
+    <section id="theoria" class="section">
+      <div class="section-head">
+        <div class="section-counter">02 / 03</div>
+        <h2 class="section-title">Theoria</h2>
+        <p class="section-kicker">Contemplation — literature &amp; reading</p>
+      </div>
 
-      <div class="reading-list">
+      <div class="section-body">
+        <p class="section-intro">
+          A record of texts that have occupied my attention — some finished,
+          some ongoing, some merely intended. Each one a small commitment.
+        </p>
 
-        <div class="book currently-reading">
-          <div class="book-status">Currently Reading</div>
-          <h3>Meditations</h3>
-          <p class="book-author">Marcus Aurelius</p>
-          <p class="book-note">
-            Written for no one but himself, yet it outlasted the empire he commanded.
-            Each entry a small battle against distraction and vanity.
-          </p>
+        <div class="entry-list">
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">01 / 04</span>
+              <span class="entry-date">Currently</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Meditations</h3>
+              <p class="entry-author">Marcus Aurelius</p>
+              <p class="entry-copy">
+                Written for no one but himself, yet it outlasted the empire he commanded.
+                Each entry a small battle against distraction and vanity.
+              </p>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">02 / 04</span>
+              <span class="entry-date">To Read</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Inferno</h3>
+              <p class="entry-author">Dante Alighieri</p>
+              <p class="entry-copy">
+                A descent through Hell as a journey toward understanding. The damned
+                are not punished arbitrarily — each soul inhabits the logical
+                conclusion of the life it chose.
+              </p>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">03 / 04</span>
+              <span class="entry-date">Read</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">The Enchiridion</h3>
+              <p class="entry-author">Epictetus</p>
+              <p class="entry-copy">
+                A short handbook for living. Its brevity is the point.
+              </p>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">04 / 04</span>
+              <span class="entry-date">To Read</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Add a Book</h3>
+              <p class="entry-author">Author Name</p>
+              <p class="entry-copy">
+                Why does it sit on your list? What draws you to it?
+              </p>
+            </div>
+          </article>
+
         </div>
-
-        <div class="book to-read">
-          <div class="book-status">To Read</div>
-          <h3>Inferno</h3>
-          <p class="book-author">Dante Alighieri</p>
-          <p class="book-note">
-            A descent through Hell as a journey toward understanding. The damned
-            are not punished arbitrarily — each soul inhabits the logical
-            conclusion of the life it chose.
-          </p>
-        </div>
-
-        <div class="book">
-          <div class="book-status">Read</div>
-          <h3>The Enchiridion</h3>
-          <p class="book-author">Epictetus</p>
-          <p class="book-note">
-            A short handbook for living. Its brevity is the point.
-          </p>
-        </div>
-
-        <div class="book to-read">
-          <div class="book-status">To Read</div>
-          <h3>Add a Book</h3>
-          <p class="book-author">Author Name</p>
-          <p class="book-note">
-            Why does it sit on your list? What draws you to it?
-          </p>
-        </div>
-
       </div>
     </section>
 
-    <!-- PRAGMA: Current Life -->
-    <section id="pragma">
-      <h2><span class="numeral">III.</span> Pragma</h2>
-      <p class="section-label">Affairs — what occupies me now</p>
-      <div class="rule"></div>
-      <p class="section-intro">
-        The present tense. What I am building, thinking about, or moving through
-        at this particular moment in time.
-      </p>
+    <!-- ─── PRAGMA ────────────────────────────────────────────── -->
+    <section id="pragma" class="section">
+      <div class="section-head">
+        <div class="section-counter">03 / 03</div>
+        <h2 class="section-title">Pragma</h2>
+        <p class="section-kicker">Affairs — what occupies me now</p>
+      </div>
 
-      <div class="pragma-list">
+      <div class="section-body">
+        <p class="section-intro">
+          The present tense. What I am building, thinking about, or moving through
+          at this particular moment in time.
+        </p>
 
-        <div class="pragma-item">
-          <div class="pragma-tag">Building</div>
-          <p>Describe something you are currently working on — a project, a habit, a discipline.</p>
+        <div class="entry-list">
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">01 / 03</span>
+              <span class="entry-date">Building</span>
+            </div>
+            <div class="entry-body">
+              <p class="entry-copy">
+                Describe something you are currently working on — a project, a habit, a discipline.
+              </p>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">02 / 03</span>
+              <span class="entry-date">Thinking About</span>
+            </div>
+            <div class="entry-body">
+              <p class="entry-copy">
+                A question or idea that keeps returning. Something unresolved that you find yourself circling.
+              </p>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">03 / 03</span>
+              <span class="entry-date">Lately</span>
+            </div>
+            <div class="entry-body">
+              <p class="entry-copy">
+                A small observation from recent life. Something noticed, something changed, something begun.
+              </p>
+            </div>
+          </article>
+
         </div>
-
-        <div class="pragma-item">
-          <div class="pragma-tag">Thinking About</div>
-          <p>A question or idea that keeps returning. Something unresolved that you find yourself circling.</p>
-        </div>
-
-        <div class="pragma-item">
-          <div class="pragma-tag">Lately</div>
-          <p>A small observation from recent life. Something noticed, something changed, something begun.</p>
-        </div>
-
       </div>
     </section>
 
   </main>
 
+  <!-- ─── Footer ──────────────────────────────────────────────── -->
   <footer>
-    <p class="footer-quote">
-      <em>"The impediment to action advances action. What stands in the way becomes the way."</em>
-    </p>
-    <p class="footer-name">Nirmit Chanana</p>
+    <div class="footer-grid">
+      <div class="footer-counter">∞ / ∞</div>
+      <div class="footer-body">
+        <p class="footer-quote">
+          The impediment to action advances action. What stands in the way becomes the way.
+        </p>
+        <p class="footer-name">MMXXVI</p>
+      </div>
+    </div>
   </footer>
 
   <script src="script.js"></script>

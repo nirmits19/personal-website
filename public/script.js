@@ -1,30 +1,36 @@
-// Scroll-driven Inferno background effect
+// ─── Live time stamp ──────────────────────────────────────────
 (function () {
-  const root = document.documentElement;
-  let ticking = false;
+  const el = document.getElementById('time');
+  if (!el) return;
 
-  function updateBg() {
-    const progress = Math.min(
-      window.scrollY / (document.body.scrollHeight - window.innerHeight),
-      1
-    );
-    root.style.setProperty('--bg-opacity', (0.04 + progress * 0.18).toFixed(3));
-    root.style.setProperty('--red-opacity', (progress * 0.18).toFixed(3));
-    ticking = false;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  // Short TZ label (e.g. "GMT", "PDT") via formatToParts
+  function tzLabel() {
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZoneName: 'short',
+      }).formatToParts(new Date());
+      const n = parts.find(p => p.type === 'timeZoneName');
+      return n ? n.value : tz;
+    } catch {
+      return tz;
+    }
   }
 
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      requestAnimationFrame(updateBg);
-      ticking = true;
-    }
-  }, { passive: true });
+  function update() {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    el.textContent = `${hh}:${mm}:${ss} ${tzLabel()}`;
+  }
 
-  updateBg();
+  update();
+  setInterval(update, 1000);
 })();
 
-// Fade-in sections as they scroll into view
-const sections = document.querySelectorAll('section');
+// ─── Fade-in on scroll (softened) ─────────────────────────────
+const fadeTargets = document.querySelectorAll('.hero, .section, footer');
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -35,26 +41,27 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.08 });
 
-sections.forEach(section => {
-  section.style.opacity = '0';
-  section.style.transform = 'translateY(18px)';
-  section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-  observer.observe(section);
+fadeTargets.forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(8px)';
+  el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+  observer.observe(el);
 });
 
-// Also fade in immediately if already visible on load
+// Fade any already-visible targets on load
 window.addEventListener('DOMContentLoaded', () => {
-  sections.forEach(section => {
-    const rect = section.getBoundingClientRect();
+  fadeTargets.forEach(el => {
+    const rect = el.getBoundingClientRect();
     if (rect.top < window.innerHeight) {
-      section.classList.add('visible');
+      el.classList.add('visible');
     }
   });
 });
 
-// Apply visible class
+// Apply visible class rule (unified selector)
 document.addEventListener('DOMContentLoaded', () => {
   const style = document.createElement('style');
-  style.textContent = 'section.visible { opacity: 1 !important; transform: none !important; }';
+  style.textContent =
+    '.hero.visible, .section.visible, footer.visible { opacity: 1 !important; transform: none !important; }';
   document.head.appendChild(style);
 });
