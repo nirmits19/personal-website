@@ -46,7 +46,7 @@
     const mm = String(now.getMinutes()).padStart(2, '0');
     const ss = String(now.getSeconds()).padStart(2, '0');
     const label = tzLabel();
-    if (frameEl) frameEl.textContent = `${hh}:${mm}:${ss} ${label}`;
+    if (frameEl) frameEl.innerHTML = `${hh}:${mm}:${ss}<span class="tz-label"> ${label}</span>`;
     if (heroEl)  heroEl.textContent  = `${hh}:${mm}:${ss}`;
   }
 

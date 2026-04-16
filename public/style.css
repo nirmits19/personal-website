@@ -458,13 +458,36 @@ section.visible,
 @media (max-width: 560px) {
   body { font-size: 16px; }
 
-  .frame { padding: 1rem var(--page-pad); }
-  .name-tag, .time-stamp { font-size: 0.65rem; letter-spacing: 0.1em; }
-  .name-tag .dash { display: none; }
-  .name-tag { max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Flex layout on mobile — nav left, time right, all on one line */
+  .frame {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+    padding: 0.85rem 1.1rem;
+  }
+
+  .frame-nav {
+    gap: 0.95rem;
+    justify-content: flex-start;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .frame-nav-item { gap: 0.15rem; }
+  .frame-nav-num { font-size: 0.55rem; letter-spacing: 0.12em; }
+  .frame-nav-label { font-size: 0.78rem; letter-spacing: 0.02em; }
+
+  .time-stamp {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  /* Hide TZ suffix on the tightest viewports to guarantee no overlap */
+  .time-stamp .tz-label { display: none; }
 
   .hero { min-height: 560px; }
-
-  .frame-nav { gap: 1.2rem; }
-  .frame-nav-label { font-size: 0.8rem; }
 }
