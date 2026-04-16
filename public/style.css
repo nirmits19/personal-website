@@ -38,7 +38,7 @@ a { color: inherit; text-decoration: none; }
   font-variant-numeric: tabular-nums;
 }
 
-/* ─── Fixed Frame (name + time) ────────────────────────────── */
+/* ─── Fixed Frame (name + time + menu) ─────────────────────── */
 .frame {
   position: fixed;
   top: 0;
@@ -48,11 +48,17 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 10;
-  background: rgba(245, 243, 238, 0.78);
-  backdrop-filter: saturate(140%) blur(10px);
-  -webkit-backdrop-filter: saturate(140%) blur(10px);
+  z-index: 20;
+  background: rgba(245, 243, 238, 0.82);
+  backdrop-filter: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
   color: var(--ink);
+}
+
+.frame-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.2rem);
 }
 
 .name-tag,
@@ -66,7 +72,157 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink);
 }
 
-.name-tag .dash { margin: 0 0.4em; opacity: 0.5; }
+/* ─── Menu Button ───────────────────────────────────────────── */
+.menu-btn {
+  background: none;
+  border: 1px solid rgba(10, 10, 10, 0.22);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding: 0.38rem 0.8rem;
+  border-radius: 2px;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+
+.menu-btn:hover,
+.menu-btn[aria-expanded="true"] {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.menu-btn-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 14px;
+}
+
+.menu-btn-icon span {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transition: transform 0.2s;
+}
+
+/* ─── Menu Overlay ──────────────────────────────────────────── */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: #0c0303;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--page-pad);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.menu-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: none;
+}
+
+.menu-overlay-header {
+  height: calc(var(--frame-pad-y) * 2 + 1.1rem); /* same height as .frame */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(245, 243, 238, 0.08);
+  flex-shrink: 0;
+}
+
+.menu-overlay-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 243, 238, 0.3);
+}
+
+.menu-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 243, 238, 0.5);
+  padding: 0;
+  transition: color 0.18s;
+}
+
+.menu-close-btn:hover { color: rgba(245, 243, 238, 0.95); }
+
+.close-x {
+  font-size: 1.15rem;
+  line-height: 1;
+  font-family: system-ui, sans-serif;
+  font-weight: 300;
+}
+
+/* ─── Menu Grid ─────────────────────────────────────────────── */
+.menu-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(245, 243, 238, 0.07);
+  border: 1px solid rgba(245, 243, 238, 0.07);
+  margin: clamp(2rem, 6vh, 4rem) 0 clamp(2rem, 6vh, 3rem);
+}
+
+.menu-card {
+  background: #0c0303;
+  padding: clamp(2rem, 5vh, 3.5rem) clamp(1.5rem, 3vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  text-decoration: none;
+  color: rgba(245, 243, 238, 0.9);
+  transition: background 0.2s;
+}
+
+.menu-card:hover { background: #1c0808; }
+
+.menu-card-num {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: rgba(245, 243, 238, 0.28);
+  margin-bottom: 0.5rem;
+}
+
+.menu-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: rgba(245, 243, 238, 0.92);
+  margin-top: auto;
+}
+
+.menu-card-sub {
+  font-size: 0.9rem;
+  color: rgba(245, 243, 238, 0.38);
+  line-height: 1.4;
+  margin-top: 0.4rem;
+}
 
 /* ─── Hero ─────────────────────────────────────────────────── */
 .hero {
@@ -119,33 +275,6 @@ a { color: inherit; text-decoration: none; }
 .hero-meta-label { opacity: 0.55; }
 .hero-meta-value { opacity: 1; }
 
-/* ─── Primary Nav ──────────────────────────────────────────── */
-.primary-nav {
-  padding: 1.1rem var(--page-pad);
-  border-bottom: 1px solid var(--rule);
-  display: flex;
-  gap: clamp(2rem, 6vw, 5rem);
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
-.primary-nav a {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  color: var(--ink);
-  transition: opacity 0.2s;
-}
-
-.primary-nav a:hover { opacity: 0.45; }
-
-.nav-num {
-  color: var(--ink-soft);
-  font-size: 0.68rem;
-}
 
 /* ─── Section Grid (asymmetric) ────────────────────────────── */
 .section {
@@ -387,5 +516,6 @@ section.visible,
 
   .hero { min-height: 560px; }
 
-  .primary-nav { gap: 1.5rem; font-size: 0.7rem; }
+  .menu-grid { grid-template-columns: 1fr; }
+  .menu-card-title { font-size: clamp(2rem, 8vw, 2.8rem); }
 }

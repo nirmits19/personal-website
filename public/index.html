@@ -11,10 +11,43 @@
 </head>
 <body>
 
-  <!-- ─── Fixed Header Anchors ────────────────────────────────── -->
+  <!-- ─── Fixed Frame ─────────────────────────────────────────── -->
   <div class="frame">
     <div class="name-tag">Essayist</div>
-    <div class="time-stamp" id="time">00:00:00</div>
+    <div class="frame-right">
+      <div class="time-stamp" id="time">00:00:00</div>
+      <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
+        <span class="menu-btn-label">Menu</span>
+        <span class="menu-btn-icon" aria-hidden="true"><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── Menu Overlay ─────────────────────────────────────────── -->
+  <div id="menu-overlay" class="menu-overlay" aria-hidden="true">
+    <div class="menu-overlay-header">
+      <div class="menu-overlay-label">Index</div>
+      <button class="menu-close-btn" id="menu-close-btn" aria-label="Close menu">
+        <span>Close</span><span class="close-x">×</span>
+      </button>
+    </div>
+    <nav class="menu-grid">
+      <a href="#episteme" class="menu-card">
+        <span class="menu-card-num">01</span>
+        <h2 class="menu-card-title">Episteme</h2>
+        <p class="menu-card-sub">Knowledge — writings &amp; essays</p>
+      </a>
+      <a href="#theoria" class="menu-card">
+        <span class="menu-card-num">02</span>
+        <h2 class="menu-card-title">Theoria</h2>
+        <p class="menu-card-sub">Contemplation — literature &amp; reading</p>
+      </a>
+      <a href="#pragma" class="menu-card">
+        <span class="menu-card-num">03</span>
+        <h2 class="menu-card-title">Pragma</h2>
+        <p class="menu-card-sub">Affairs — what occupies me now</p>
+      </a>
+    </nav>
   </div>
 
   <!-- ─── Hero ────────────────────────────────────────────────── -->
@@ -27,13 +60,6 @@
       <span class="hero-meta-value">MMXXVI</span>
     </div>
   </header>
-
-  <!-- ─── Nav ─────────────────────────────────────────────────── -->
-  <nav class="primary-nav">
-    <a href="#episteme"><span class="nav-num">01</span> Episteme</a>
-    <a href="#theoria"><span class="nav-num">02</span> Theoria</a>
-    <a href="#pragma"><span class="nav-num">03</span> Pragma</a>
-  </nav>
 
   <main>
 
