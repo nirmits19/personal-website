@@ -3,18 +3,32 @@
   const frame = document.getElementById('frame');
   const hero  = document.querySelector('.hero');
 
+  let lastY = window.scrollY;
   function update() {
-    // Use rect.bottom — robust across iOS Safari viewport quirks (address bar
-    // resizing 100vh etc). rect.bottom = pixels from viewport top to hero bottom.
     const rect = hero ? hero.getBoundingClientRect() : null;
     const h    = rect ? rect.height : window.innerHeight;
     const b    = rect ? rect.bottom : window.innerHeight - window.scrollY;
-    //  at-top : hero top still mostly in view (scrolled < 15% of hero)
-    //  past   : hero almost entirely off-screen (scrolled > 95%)
+    const y    = window.scrollY;
+    const scrollingUp = y < lastY - 1; // small deadzone to ignore jitter
+    lastY = y;
+
     const atTop = b > h * 0.85;
     const past  = b < h * 0.05;
-    frame.classList.toggle('at-top',   atTop);
-    frame.classList.toggle('scrolled', past);
+
+    // Three-state visibility, direction-aware:
+    //  • at the very top of the hero  → transparent white-text nav
+    //  • past the hero                → frosted-bg nav
+    //  • scrolling up anywhere        → frosted-bg nav (always reveal on up)
+    //  • scrolling down through hero  → hidden (so it can't overlap the clock)
+    if (atTop) {
+      frame.classList.add('at-top');
+      frame.classList.remove('scrolled');
+    } else if (past || scrollingUp) {
+      frame.classList.remove('at-top');
+      frame.classList.add('scrolled');
+    } else {
+      frame.classList.remove('at-top', 'scrolled');
+    }
   }
 
   window.addEventListener('scroll', update, { passive: true });
