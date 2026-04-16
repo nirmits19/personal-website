@@ -4,19 +4,21 @@
   const hero  = document.querySelector('.hero');
 
   function update() {
-    const heroBottom = hero ? hero.offsetHeight : window.innerHeight;
-    const y = window.scrollY;
-    // Three states:
-    //  1. at-top (over hero top, before clock area): visible, transparent
-    //  2. mid-hero: hidden (so it doesn't overlap the centered clock)
-    //  3. past hero: visible with frosted bg
-    const atTop  = y < heroBottom * 0.15;
-    const past   = y > heroBottom * 0.95;
+    // Use rect.bottom — robust across iOS Safari viewport quirks (address bar
+    // resizing 100vh etc). rect.bottom = pixels from viewport top to hero bottom.
+    const rect = hero ? hero.getBoundingClientRect() : null;
+    const h    = rect ? rect.height : window.innerHeight;
+    const b    = rect ? rect.bottom : window.innerHeight - window.scrollY;
+    //  at-top : hero top still mostly in view (scrolled < 15% of hero)
+    //  past   : hero almost entirely off-screen (scrolled > 95%)
+    const atTop = b > h * 0.85;
+    const past  = b < h * 0.05;
     frame.classList.toggle('at-top',   atTop);
     frame.classList.toggle('scrolled', past);
   }
 
   window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
   update();
 })();
 
@@ -126,18 +128,83 @@
     el.textContent = `−${pad(h)}:${pad(m)}:${pad(s)}`;
   }
 
-  fetch('https://ipapi.co/json/')
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => {
-      if (typeof data.latitude !== 'number' || typeof data.longitude !== 'number') throw 0;
-      lat = data.latitude;
-      lon = data.longitude;
-      recompute();
-      tick();
-      setInterval(tick, 1000);
-      setInterval(recompute, 60 * 60 * 1000); // rebase hourly
-    })
-    .catch(() => { el.style.display = 'none'; });
+  // Rough lat/lon for common IANA timezones — fallback so we always
+  // have *some* location and the timer never disappears.
+  const TZ_FALLBACK = {
+    'Europe/London':     [51.5, -0.13],
+    'Europe/Dublin':     [53.35, -6.26],
+    'Europe/Paris':      [48.86, 2.35],
+    'Europe/Berlin':     [52.52, 13.4],
+    'Europe/Amsterdam':  [52.37, 4.89],
+    'Europe/Madrid':     [40.42, -3.7],
+    'Europe/Rome':       [41.9, 12.5],
+    'Europe/Athens':     [37.98, 23.73],
+    'Europe/Moscow':     [55.75, 37.62],
+    'America/New_York':  [40.71, -74.01],
+    'America/Chicago':   [41.88, -87.63],
+    'America/Denver':    [39.74, -104.99],
+    'America/Los_Angeles':[34.05, -118.24],
+    'America/Toronto':   [43.65, -79.38],
+    'America/Vancouver': [49.28, -123.12],
+    'America/Sao_Paulo': [-23.55, -46.63],
+    'America/Mexico_City':[19.43, -99.13],
+    'Asia/Tokyo':        [35.68, 139.69],
+    'Asia/Shanghai':     [31.23, 121.47],
+    'Asia/Hong_Kong':    [22.32, 114.17],
+    'Asia/Singapore':    [1.35, 103.82],
+    'Asia/Seoul':        [37.57, 126.98],
+    'Asia/Kolkata':      [28.61, 77.21],
+    'Asia/Dubai':        [25.2, 55.27],
+    'Asia/Bangkok':      [13.75, 100.5],
+    'Australia/Sydney':  [-33.87, 151.21],
+    'Australia/Melbourne':[-37.81, 144.96],
+    'Australia/Perth':   [-31.95, 115.86],
+    'Pacific/Auckland':  [-36.85, 174.76],
+    'Africa/Johannesburg':[-26.2, 28.04],
+    'Africa/Cairo':      [30.04, 31.24],
+    'Africa/Lagos':      [6.52, 3.38],
+  };
+
+  function tzFallback() {
+    const z = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const hit = TZ_FALLBACK[z];
+    if (hit) return { lat: hit[0], lon: hit[1] };
+    // Last-ditch: derive longitude from UTC offset, assume mid-latitude
+    const offsetH = -new Date().getTimezoneOffset() / 60;
+    return { lat: 30, lon: offsetH * 15 };
+  }
+
+  const PROVIDERS = [
+    { url: 'https://ipwho.is/',   pick: d => (d && d.success !== false) ? { lat: d.latitude,  lon: d.longitude }  : null },
+    { url: 'https://ipapi.co/json/', pick: d => (d && typeof d.latitude === 'number') ? { lat: d.latitude, lon: d.longitude } : null },
+  ];
+
+  async function locate() {
+    for (const p of PROVIDERS) {
+      try {
+        const r = await fetch(p.url);
+        if (!r.ok) continue;
+        const d = await r.json();
+        const loc = p.pick(d);
+        if (loc && typeof loc.lat === 'number' && typeof loc.lon === 'number') return loc;
+      } catch { /* try next */ }
+    }
+    return tzFallback();
+  }
+
+  function start(loc) {
+    lat = loc.lat;
+    lon = loc.lon;
+    recompute();
+    tick();
+    setInterval(tick, 1000);
+    setInterval(recompute, 60 * 60 * 1000); // rebase hourly
+  }
+
+  // Kick off with immediate TZ-based estimate so the timer appears fast,
+  // then refine with IP geolocation if/when it resolves.
+  start(tzFallback());
+  locate().then(loc => { if (loc) start(loc); });
 })();
 
 // ─── Fade-in on scroll (softened) ─────────────────────────────
