@@ -5,7 +5,15 @@
 
   function update() {
     const heroBottom = hero ? hero.offsetHeight : window.innerHeight;
-    frame.classList.toggle('scrolled', window.scrollY > heroBottom * 0.6);
+    const y = window.scrollY;
+    // Three states:
+    //  1. at-top (over hero top, before clock area): visible, transparent
+    //  2. mid-hero: hidden (so it doesn't overlap the centered clock)
+    //  3. past hero: visible with frosted bg
+    const atTop  = y < heroBottom * 0.15;
+    const past   = y > heroBottom * 0.95;
+    frame.classList.toggle('at-top',   atTop);
+    frame.classList.toggle('scrolled', past);
   }
 
   window.addEventListener('scroll', update, { passive: true });
