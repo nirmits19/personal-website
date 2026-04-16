@@ -1,32 +1,15 @@
-// ─── Menu overlay ────────────────────────────────────────────
+// ─── Frame: transparent over hero, frosted-glass after ───────
 (function () {
-  const btn     = document.getElementById('menu-btn');
-  const overlay = document.getElementById('menu-overlay');
-  const closeBtn = document.getElementById('menu-close-btn');
-  const cards   = overlay.querySelectorAll('.menu-card');
+  const frame = document.getElementById('frame');
+  const hero  = document.querySelector('.hero');
 
-  function open() {
-    overlay.classList.add('open');
-    overlay.setAttribute('aria-hidden', 'false');
-    btn.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
+  function update() {
+    const heroBottom = hero ? hero.offsetHeight : window.innerHeight;
+    frame.classList.toggle('scrolled', window.scrollY > heroBottom * 0.85);
   }
 
-  function close() {
-    overlay.classList.remove('open');
-    overlay.setAttribute('aria-hidden', 'true');
-    btn.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
-  }
-
-  btn.addEventListener('click', () =>
-    overlay.classList.contains('open') ? close() : open()
-  );
-  closeBtn.addEventListener('click', close);
-  cards.forEach(c => c.addEventListener('click', close));
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') close();
-  });
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 })();
 
 // ─── Live time stamp ──────────────────────────────────────────

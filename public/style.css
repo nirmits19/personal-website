@@ -38,7 +38,7 @@ a { color: inherit; text-decoration: none; }
   font-variant-numeric: tabular-nums;
 }
 
-/* ─── Fixed Frame (name + time + menu) ─────────────────────── */
+/* ─── Fixed Frame ───────────────────────────────────────────── */
 .frame {
   position: fixed;
   top: 0;
@@ -47,18 +47,20 @@ a { color: inherit; text-decoration: none; }
   padding: var(--frame-pad-y) var(--page-pad);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   z-index: 20;
-  background: rgba(245, 243, 238, 0.82);
+  /* Transparent over hero — text is white */
+  color: rgba(245, 243, 238, 0.88);
+  transition: background 0.35s ease, color 0.35s ease,
+              backdrop-filter 0.35s ease;
+}
+
+/* Once past the hero, show a frosted-glass bg */
+.frame.scrolled {
+  background: rgba(245, 243, 238, 0.85);
   backdrop-filter: saturate(140%) blur(12px);
   -webkit-backdrop-filter: saturate(140%) blur(12px);
   color: var(--ink);
-}
-
-.frame-right {
-  display: flex;
-  align-items: center;
-  gap: clamp(1rem, 3vw, 2.2rem);
 }
 
 .name-tag,
@@ -69,160 +71,41 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
-  color: var(--ink);
+  color: inherit;
 }
 
-/* ─── Menu Button ───────────────────────────────────────────── */
-.menu-btn {
-  background: none;
-  border: 1px solid rgba(10, 10, 10, 0.22);
-  cursor: pointer;
+/* ─── Frame Nav ─────────────────────────────────────────────── */
+.frame-nav {
   display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  padding: 0.38rem 0.8rem;
-  border-radius: 2px;
-  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  gap: clamp(2.5rem, 6vw, 6rem);
+  align-items: flex-start;
 }
 
-.menu-btn:hover,
-.menu-btn[aria-expanded="true"] {
-  background: var(--ink);
-  color: var(--bg);
-  border-color: var(--ink);
-}
-
-.menu-btn-icon {
+.frame-nav-item {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  width: 14px;
-}
-
-.menu-btn-icon span {
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: currentColor;
-  transition: transform 0.2s;
-}
-
-/* ─── Menu Overlay ──────────────────────────────────────────── */
-.menu-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  background: #0c0303;
-  display: flex;
-  flex-direction: column;
-  padding: 0 var(--page-pad);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-6px);
-  transition: opacity 0.28s ease, transform 0.28s ease;
-}
-
-.menu-overlay.open {
-  opacity: 1;
-  pointer-events: all;
-  transform: none;
-}
-
-.menu-overlay-header {
-  height: calc(var(--frame-pad-y) * 2 + 1.1rem); /* same height as .frame */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(245, 243, 238, 0.08);
-  flex-shrink: 0;
-}
-
-.menu-overlay-label {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(245, 243, 238, 0.3);
-}
-
-.menu-close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(245, 243, 238, 0.5);
-  padding: 0;
-  transition: color 0.18s;
-}
-
-.menu-close-btn:hover { color: rgba(245, 243, 238, 0.95); }
-
-.close-x {
-  font-size: 1.15rem;
-  line-height: 1;
-  font-family: system-ui, sans-serif;
-  font-weight: 300;
-}
-
-/* ─── Menu Grid ─────────────────────────────────────────────── */
-.menu-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: rgba(245, 243, 238, 0.07);
-  border: 1px solid rgba(245, 243, 238, 0.07);
-  margin: clamp(2rem, 6vh, 4rem) 0 clamp(2rem, 6vh, 3rem);
-}
-
-.menu-card {
-  background: #0c0303;
-  padding: clamp(2rem, 5vh, 3.5rem) clamp(1.5rem, 3vw, 2.5rem);
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.3rem;
+  color: inherit;
   text-decoration: none;
-  color: rgba(245, 243, 238, 0.9);
-  transition: background 0.2s;
+  transition: opacity 0.2s;
 }
 
-.menu-card:hover { background: #1c0808; }
+.frame-nav-item:hover { opacity: 0.5; }
 
-.menu-card-num {
+.frame-nav-num {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   letter-spacing: 0.14em;
-  color: rgba(245, 243, 238, 0.28);
-  margin-bottom: 0.5rem;
+  opacity: 0.45;
 }
 
-.menu-card-title {
+.frame-nav-label {
   font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.88rem;
   font-weight: 500;
-  font-size: clamp(2rem, 4vw, 3.8rem);
-  line-height: 1;
-  letter-spacing: -0.025em;
-  color: rgba(245, 243, 238, 0.92);
-  margin-top: auto;
+  letter-spacing: 0.03em;
 }
 
-.menu-card-sub {
-  font-size: 0.9rem;
-  color: rgba(245, 243, 238, 0.38);
-  line-height: 1.4;
-  margin-top: 0.4rem;
-}
 
 /* ─── Hero ─────────────────────────────────────────────────── */
 .hero {
@@ -516,6 +399,6 @@ section.visible,
 
   .hero { min-height: 560px; }
 
-  .menu-grid { grid-template-columns: 1fr; }
-  .menu-card-title { font-size: clamp(2rem, 8vw, 2.8rem); }
+  .frame-nav { gap: 1.2rem; }
+  .frame-nav-label { font-size: 0.8rem; }
 }
