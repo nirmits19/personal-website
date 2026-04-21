@@ -1,3 +1,203 @@
+// ─── WebGL Fluid Hero Shader ──────────────────────────────────
+(function () {
+  const canvas = document.getElementById('hero-gl');
+  if (!canvas) return;
+  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
+  if (!gl) { canvas.style.display = 'none'; return; }
+
+  const vert = `
+    attribute vec2 a_pos;
+    void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
+  `;
+
+  const frag = `
+    precision mediump float;
+    uniform float u_time;
+    uniform vec2  u_res;
+    uniform vec2  u_mouse;
+
+    vec2 hash2(vec2 p) {
+      p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+      return -1.0 + 2.0 * fract(sin(p) * 43758.5453);
+    }
+    float noise(vec2 p) {
+      vec2 i = floor(p), f = fract(p);
+      vec2 u = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(dot(hash2(i),             f),
+            dot(hash2(i + vec2(1,0)), f - vec2(1,0)), u.x),
+        mix(dot(hash2(i + vec2(0,1)), f - vec2(0,1)),
+            dot(hash2(i + vec2(1,1)), f - vec2(1,1)), u.x), u.y);
+    }
+    float fbm(vec2 p) {
+      float v = 0.0, a = 0.5;
+      for (int i = 0; i < 6; i++) {
+        v += a * noise(p);
+        p  = p * 2.1 + vec2(1.7, 9.2);
+        a *= 0.5;
+      }
+      return v;
+    }
+    void main() {
+      vec2 uv = gl_FragCoord.xy / u_res;
+      uv.y = 1.0 - uv.y;
+      float t = u_time * 0.07;
+
+      // Mouse influence (normalised 0-1)
+      vec2 m = u_mouse / u_res;
+      m.y = 1.0 - m.y;
+
+      // Domain warp — two layers
+      vec2 q = vec2(fbm(uv * 2.0 + t),
+                    fbm(uv * 2.0 + vec2(1.0, t)));
+      vec2 r = vec2(fbm(uv * 2.0 + q + vec2(1.7, 9.2) + 0.15 * t),
+                    fbm(uv * 2.0 + q + vec2(8.3, 2.8) + 0.13 * t));
+
+      float f = fbm(uv * 2.5 + r);
+
+      // Mouse warmth — cursor leaves a warm bloom
+      float md = length(uv - m);
+      f += 0.18 * exp(-md * 4.5);
+
+      // Edge vignette darkening
+      float vig = 1.0 - smoothstep(0.3, 1.2, length(uv - 0.5) * 1.6);
+      f *= vig;
+
+      // Warm dark palette: deep brown → amber
+      vec3 c0 = vec3(0.06, 0.04, 0.02);
+      vec3 c1 = vec3(0.18, 0.10, 0.04);
+      vec3 c2 = vec3(0.38, 0.22, 0.08);
+      vec3 col = mix(c0, c1, smoothstep(0.0, 0.5, f));
+      col      = mix(col, c2, smoothstep(0.4, 0.9, f));
+
+      float alpha = smoothstep(0.0, 0.3, f) * 0.72;
+      gl_FragColor = vec4(col, alpha);
+    }
+  `;
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.warn(gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.warn(gl.getProgramInfoLog(prog)); return; }
+  gl.useProgram(prog);
+
+  // Full-screen quad
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'a_pos');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  const uTime  = gl.getUniformLocation(prog, 'u_time');
+  const uRes   = gl.getUniformLocation(prog, 'u_res');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  function resize() {
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let start = null;
+  function frame(ts) {
+    if (!start) start = ts;
+    const t = (ts - start) / 1000;
+    gl.uniform1f(uTime, t);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform2f(uMouse, mx, my);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+// ─── Custom Cursor ────────────────────────────────────────────
+(function () {
+  const dot  = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  if (!dot || !ring) return;
+
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  (function animCursor() {
+    rx += (mx - rx) * 0.13;
+    ry += (my - ry) * 0.13;
+    dot.style.left  = mx + 'px'; dot.style.top  = my + 'px';
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animCursor);
+  })();
+
+  // Hover state
+  document.querySelectorAll('a, button, .entry, .frame-nav-item').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+  // Dark/light zone detection (hero is dark)
+  const hero = document.querySelector('.hero');
+  window.addEventListener('scroll', () => {
+    if (!hero) return;
+    const rect = hero.getBoundingClientRect();
+    document.body.classList.toggle('cursor-on-dark', rect.bottom > 0 && rect.top < window.innerHeight);
+  }, { passive: true });
+  // Set initial state
+  document.body.classList.add('cursor-on-dark');
+})();
+
+// ─── Marquee ──────────────────────────────────────────────────
+(function () {
+  const track = document.getElementById('marquee-track');
+  if (!track) return;
+  const items = [
+    'Episteme', '·', 'Theoria', '·', 'Pragma', '·',
+    'Essays & Writings', '·', 'Literature', '·', 'Present Affairs', '·',
+    'Episteme', '·', 'Theoria', '·', 'Pragma', '·',
+    'Essays & Writings', '·', 'Literature', '·', 'Present Affairs', '·',
+  ];
+  const frag = document.createDocumentFragment();
+  [...items, ...items].forEach(t => {
+    const span = document.createElement('span');
+    if (t === '·') span.className = 'sep';
+    span.textContent = t;
+    frag.appendChild(span);
+  });
+  track.appendChild(frag);
+})();
+
+// ─── Staggered entry reveals ──────────────────────────────────
+(function () {
+  const entries = document.querySelectorAll('.entry');
+  const obs = new IntersectionObserver((list) => {
+    list.forEach(e => {
+      if (!e.isIntersecting) return;
+      const siblings = [...e.target.closest('.entry-list').querySelectorAll('.entry')];
+      const idx = siblings.indexOf(e.target);
+      e.target.style.transitionDelay = (idx * 0.08) + 's';
+      e.target.classList.add('entry-visible');
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.1 });
+  entries.forEach(el => obs.observe(el));
+})();
+
 // ─── Frame: transparent over hero, frosted-glass after ───────
 (function () {
   const frame = document.getElementById('frame');
