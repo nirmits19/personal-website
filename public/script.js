@@ -32,7 +32,7 @@
     }
     float fbm(vec2 p) {
       float v = 0.0, a = 0.5;
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 3; i++) {
         v += a * noise(p);
         p  = p * 2.1 + vec2(1.7, 9.2);
         a *= 0.5;
@@ -130,13 +130,18 @@
       .observe(heroEl);
   }
 
-  let start = null;
+  // Throttle to ~30 fps — the shader is a slow-drifting background,
+  // 60 fps is wasted GPU time and competes with scroll compositing.
+  let start = null, lastDraw = 0;
+  const MIN_FRAME_MS = 33; // ~30 fps
   function frame(ts) {
     requestAnimationFrame(frame);
-    if (!heroVisible) return;          // skip work when off-screen
+    if (!heroVisible) return;
+    if (ts - lastDraw < MIN_FRAME_MS) return;
+    lastDraw = ts;
     if (!start) start = ts;
     const t = (ts - start) / 1000;
-    glScroll += ((window.__glScrollTarget || 0) - glScroll) * 0.05;
+    glScroll += ((window.__glScrollTarget || 0) - glScroll) * 0.08;
     gl.uniform1f(uTime, t);
     gl.uniform1f(uScroll, glScroll);
     gl.uniform2f(uRes, canvas.width, canvas.height);
@@ -535,28 +540,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.head.appendChild(style);
 });
 
-// ─── Hero parallax ────────────────────────────────────────────
-// Image drifts at ~0.35× scroll speed — cinematic layered feel.
-(function () {
-  const img = document.querySelector('.hero-image');
-  if (!img) return;
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
-  let latestY = 0, ticking = false;
-  function onScroll() {
-    latestY = window.scrollY;
-    if (!ticking) {
-      requestAnimationFrame(apply);
-      ticking = true;
-    }
-  }
-  function apply() {
-    img.style.transform = `translate3d(0, ${latestY * 0.35}px, 0)`;
-    ticking = false;
-  }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  apply();
-})();
+// Hero parallax removed — continuously retranslating a 1.6 MB image
+// layer on every scroll frame was a major jank source, especially on
+// rapid direction changes. Native scroll of the hero is smoother.
 
 // (Scroll → WebGL distortion, section progress bars, dock visibility,
 //  and the frame state are all handled in the unified dispatcher above.)

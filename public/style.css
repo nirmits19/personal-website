@@ -18,7 +18,8 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Native scroll — no forced smoothing. Forced smooth queues
+     animations that fight rapid wheel/trackpad input. */
   scroll-padding-top: var(--nav-offset);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -60,9 +61,8 @@ a { color: inherit; text-decoration: none; }
   opacity: 0;
   pointer-events: none;
   transform: translateY(-8px);
-  transition: opacity 0.5s ease, transform 0.5s ease,
-              background 0.4s ease, color 0.4s ease,
-              backdrop-filter 0.4s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease,
+              background 0.3s ease, color 0.3s ease;
 }
 
 /* At the very top of the page — visible over the hero image, white text */
@@ -72,19 +72,17 @@ a { color: inherit; text-decoration: none; }
   transform: none;
   color: rgba(245, 243, 238, 0.9);
   background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
 }
 
-/* Past the hero — frosted-glass bg, dark text */
+/* Past the hero — solid cream bg (no backdrop-filter; blur is the
+   single most expensive thing a browser can composite while scrolling). */
 .frame.scrolled {
   opacity: 1;
   pointer-events: auto;
   transform: none;
   color: var(--ink);
-  background: rgba(245, 243, 238, 0.85);
-  backdrop-filter: saturate(140%) blur(12px);
-  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  background: rgba(245, 243, 238, 0.96);
+  border-bottom: 1px solid var(--rule-soft);
 }
 
 .name-tag,
@@ -158,20 +156,11 @@ a { color: inherit; text-decoration: none; }
   object-fit: cover;
   object-position: center;
   display: block;
-  /* Slow Ken Burns — drifts & breathes over 38s */
-  animation: kenburns 38s ease-in-out infinite alternate;
+  transform: scale(1.06);
   transform-origin: 52% 48%;
-  will-change: transform;
 }
-
-@keyframes kenburns {
-  0%   { transform: scale(1.04) translate(0, 0); }
-  100% { transform: scale(1.12) translate(-1.6%, -1.2%); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-image img { animation: none; }
-}
+/* Ken Burns removed — a continuously-animating transform on a 1.6 MB
+   image keeps the GPU busy indefinitely. Static scale keeps the crop. */
 
 /* Subtle vignette so frame + meta stay legible over any crop */
 .hero::after {
@@ -324,7 +313,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .entry {
-  padding: 2rem 0;
+  padding: 2rem 1.2rem 2rem 1.4rem;
   border-top: 1px solid var(--rule);
   display: grid;
   grid-template-columns: 1fr 3fr;
@@ -632,11 +621,6 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
   width: 6px; height: 6px;
   border-radius: 50%;
   background: #5c9e6e;
-  animation: pulse 2.4s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.85); }
 }
 
 /* ─── Floating Dock ──────────────────────────────────────────── */
