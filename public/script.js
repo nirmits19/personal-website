@@ -656,111 +656,123 @@ window.addEventListener('scroll', () => {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 })();
 
-// ─── EDM Beat + Sound Toggle ─────────────────────────────────
+// ─── Ambient Drone + Sound Toggle ────────────────────────────
+// Slow evolving drone: stacked detuned sine oscillators on a low root
+// (A1), gentle LFO-modulated low-pass filter, long feedback delay for
+// space. No beat, no melody — a room tone you can leave running.
 (function () {
-  let ctx = null, gain = null, seq = null, playing = false;
-  const BPM = 128, step = 60 / BPM / 4; // 16th note
+  let ctx = null, master = null, nodes = null, playing = false, breathId = null;
 
-  // Patterns (16 steps each)
-  const kick  = [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0];
-  const snare = [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0];
-  const hat   = [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0];
-  const bass  = [1,0,0,1, 0,0,1,0, 1,0,0,0, 0,1,0,0];
-  const bassNote = [55, 55, 55, 45, 55, 55, 45, 50, 55, 55, 55, 50, 45, 50, 55, 55];
+  // Root A1 ≈ 55 Hz. Perfect fifth (E) + octave + twelfth for a drone stack.
+  const PARTIALS = [
+    { freq: 55.00, detune:  -4, gain: 0.30 },  // A1
+    { freq: 55.00, detune:  +5, gain: 0.30 },  // A1 (detuned pair)
+    { freq: 82.41, detune:  -3, gain: 0.18 },  // E2 (fifth)
+    { freq: 110.0, detune:  +2, gain: 0.14 },  // A2 (octave)
+    { freq: 164.8, detune:  -6, gain: 0.08 },  // E3
+    { freq: 220.0, detune:  +7, gain: 0.05 },  // A3
+  ];
 
   function getCtx() {
-    if (!ctx) {
-      ctx  = new (window.AudioContext || window.webkitAudioContext)();
-      gain = ctx.createGain(); gain.gain.value = 0;
-      gain.connect(ctx.destination);
-    }
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state !== 'running') ctx.resume();
     return ctx;
   }
 
-  function playKick(t) {
+  function buildVoices() {
     const c = ctx;
-    const o = c.createOscillator(), g = c.createGain();
-    o.frequency.setValueAtTime(150, t);
-    o.frequency.exponentialRampToValueAtTime(0.01, t + 0.4);
-    g.gain.setValueAtTime(1.2, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-    o.connect(g); g.connect(gain); o.start(t); o.stop(t + 0.4);
-  }
 
-  function playSnare(t) {
-    const c = ctx;
-    const buf = c.createBuffer(1, c.sampleRate * 0.15, c.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    const src = c.createBufferSource();
-    const hpf = c.createBiquadFilter(), g = c.createGain();
-    hpf.type = 'highpass'; hpf.frequency.value = 1500;
-    src.buffer = buf;
-    g.gain.setValueAtTime(0.6, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-    src.connect(hpf); hpf.connect(g); g.connect(gain);
-    src.start(t); src.stop(t + 0.15);
-  }
+    // Master gain — starts silent, fades in.
+    master = c.createGain();
+    master.gain.value = 0;
 
-  function playHat(t) {
-    const c = ctx;
-    const buf = c.createBuffer(1, c.sampleRate * 0.05, c.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    const src = c.createBufferSource();
-    const hpf = c.createBiquadFilter(), g = c.createGain();
-    hpf.type = 'highpass'; hpf.frequency.value = 8000;
-    src.buffer = buf;
-    g.gain.setValueAtTime(0.3, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
-    src.connect(hpf); hpf.connect(g); g.connect(gain);
-    src.start(t); src.stop(t + 0.05);
-  }
+    // Slow breathing low-pass filter over the whole drone.
+    const filter = c.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 600;
+    filter.Q.value = 0.7;
 
-  function playBass(t, note) {
-    const c = ctx;
-    const o = c.createOscillator(), filt = c.createBiquadFilter(), g = c.createGain();
-    const freq = 440 * Math.pow(2, (note - 69) / 12);
-    o.type = 'sawtooth'; o.frequency.value = freq;
-    filt.type = 'lowpass';
-    filt.frequency.setValueAtTime(2000, t);
-    filt.frequency.exponentialRampToValueAtTime(200, t + step * 0.8);
-    g.gain.setValueAtTime(0.5, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + step * 0.85);
-    o.connect(filt); filt.connect(g); g.connect(gain);
-    o.start(t); o.stop(t + step * 0.9);
-  }
+    // Feedback delay acts as a cheap reverb/space.
+    const delay = c.createDelay(2.5);
+    delay.delayTime.value = 1.1;
+    const feedback = c.createGain();
+    feedback.gain.value = 0.55;
+    const wet = c.createGain();
+    wet.gain.value = 0.35;
 
-  let stepIdx = 0, nextTime = 0;
-  function schedule() {
-    if (!playing) return;
-    const c = ctx;
-    const ahead = 0.1;
-    while (nextTime < c.currentTime + ahead) {
-      const s = stepIdx % 16;
-      if (kick[s])  playKick(nextTime);
-      if (snare[s]) playSnare(nextTime);
-      if (hat[s])   playHat(nextTime);
-      if (bass[s])  playBass(nextTime, bassNote[s]);
-      nextTime += step;
-      stepIdx++;
+    // Routing: voices -> filter -> (dry -> master) and (-> delay loop -> master)
+    filter.connect(master);
+    filter.connect(delay);
+    delay.connect(feedback); feedback.connect(delay);
+    delay.connect(wet); wet.connect(master);
+
+    // Final soft-clip to tame peaks.
+    const shaper = c.createWaveShaper();
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < 1024; i++) {
+      const x = (i / 1024) * 2 - 1;
+      curve[i] = Math.tanh(x * 1.6);
     }
-    seq = setTimeout(schedule, 25);
+    shaper.curve = curve;
+    master.connect(shaper); shaper.connect(c.destination);
+
+    // Build oscillators.
+    const oscs = PARTIALS.map(p => {
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = 'sine';
+      o.frequency.value = p.freq;
+      o.detune.value = p.detune;
+      g.gain.value = p.gain;
+      o.connect(g); g.connect(filter);
+      o.start();
+      return { o, g, partial: p };
+    });
+
+    return { master, filter, delay, oscs };
   }
 
-  function startEDM() {
+  // Slow LFO-ish "breathing" on filter cutoff + tiny detune drift.
+  function breathe() {
+    if (!playing || !nodes) return;
+    const c = ctx, now = c.currentTime;
+    // Filter sweeps between ~380 Hz and ~900 Hz over 12–22 s.
+    const target = 380 + Math.random() * 520;
+    const dur    = 12 + Math.random() * 10;
+    nodes.filter.frequency.cancelScheduledValues(now);
+    nodes.filter.frequency.setValueAtTime(nodes.filter.frequency.value, now);
+    nodes.filter.frequency.linearRampToValueAtTime(target, now + dur);
+
+    // Drift each oscillator's detune a few cents for chorus-y movement.
+    nodes.oscs.forEach(v => {
+      const d = v.partial.detune + (Math.random() * 10 - 5);
+      v.o.detune.cancelScheduledValues(now);
+      v.o.detune.linearRampToValueAtTime(d, now + dur);
+    });
+
+    breathId = setTimeout(breathe, dur * 1000);
+  }
+
+  function start() {
     const c = getCtx();
-    nextTime = c.currentTime + 0.05;
-    stepIdx = 0; playing = true;
-    gain.gain.setTargetAtTime(0.7, c.currentTime, 0.5);
-    schedule();
+    if (!nodes) nodes = buildVoices();
+    playing = true;
+    // Long fade in — 4 seconds.
+    master.gain.cancelScheduledValues(c.currentTime);
+    master.gain.setValueAtTime(master.gain.value, c.currentTime);
+    master.gain.linearRampToValueAtTime(0.22, c.currentTime + 4);
+    breathe();
   }
 
-  function stopEDM() {
+  function stop() {
     playing = false;
-    clearTimeout(seq);
-    if (gain && ctx) gain.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
+    clearTimeout(breathId);
+    if (master && ctx) {
+      const now = ctx.currentTime;
+      master.gain.cancelScheduledValues(now);
+      master.gain.setValueAtTime(master.gain.value, now);
+      master.gain.linearRampToValueAtTime(0, now + 2.5);
+    }
   }
 
   let on = false;
@@ -770,6 +782,6 @@ window.addEventListener('scroll', () => {
     const label = document.getElementById('sound-label');
     if (label) label.textContent = on ? 'Playing' : 'Sound';
     if (btn) btn.classList.toggle('sound-playing', on);
-    if (on) startEDM(); else stopEDM();
+    if (on) start(); else stop();
   };
 })();
