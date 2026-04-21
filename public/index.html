@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
 
@@ -19,21 +19,22 @@
 
   <!-- ─── Fixed Frame ─────────────────────────────────────────── -->
   <div class="frame" id="frame">
+    <div class="frame-left"></div>
     <nav class="frame-nav">
-      <a href="#episteme" class="frame-nav-item">
+      <a href="#episteme" class="frame-nav-item" data-magnetic>
         <span class="frame-nav-num">01</span>
         <span class="frame-nav-label">Episteme</span>
       </a>
-      <a href="#theoria" class="frame-nav-item">
+      <a href="#theoria" class="frame-nav-item" data-magnetic>
         <span class="frame-nav-num">02</span>
         <span class="frame-nav-label">Theoria</span>
       </a>
-      <a href="#pragma" class="frame-nav-item">
+      <a href="#pragma" class="frame-nav-item" data-magnetic>
         <span class="frame-nav-num">03</span>
         <span class="frame-nav-label">Pragma</span>
       </a>
     </nav>
-
+    <div class="frame-right"></div>
   </div>
 
   <!-- ─── Hero ────────────────────────────────────────────────── -->
@@ -42,25 +43,30 @@
     <div class="hero-image">
       <img src="cover.png" alt="" />
     </div>
+    <!-- Letter-by-letter title reveal -->
+    <div class="hero-title" aria-label="Eudaimonia">
+      <span class="hero-letter" style="--i:0">E</span><span class="hero-letter" style="--i:1">U</span><span class="hero-letter" style="--i:2">D</span><span class="hero-letter" style="--i:3">A</span><span class="hero-letter" style="--i:4">I</span><span class="hero-letter" style="--i:5">M</span><span class="hero-letter" style="--i:6">O</span><span class="hero-letter" style="--i:7">N</span><span class="hero-letter" style="--i:8">I</span><span class="hero-letter" style="--i:9">A</span>
+    </div>
     <div class="hero-clock-group">
       <div class="hero-clock" id="hero-clock">00:00:00</div>
       <div class="hero-sunset" id="sunset-countdown">&nbsp;</div>
     </div>
+    <!-- Scroll hint -->
+    <div class="hero-scroll-hint" aria-hidden="true">
+      <span>scroll</span>
+      <div class="scroll-track"><div class="scroll-thumb"></div></div>
+    </div>
   </header>
-
-  <!-- ─── Marquee ────────────────────────────────────────────── -->
-  <div class="marquee-wrap" aria-hidden="true">
-    <div class="marquee-track" id="marquee-track"></div>
-  </div>
 
   <main>
 
     <!-- ─── EPISTEME ──────────────────────────────────────────── -->
-    <section id="episteme" class="section">
-      <div class="section-head">
+    <section id="episteme" class="section ink-bleed">
+      <div class="section-head" data-section="episteme">
         <div class="section-counter">01 / 03</div>
-        <h2 class="section-title">Episteme</h2>
+        <h2 class="section-title" data-parallax>Episteme</h2>
         <p class="section-kicker">Knowledge — writings &amp; essays</p>
+        <div class="section-progress-bar"><div class="section-progress-fill" id="prog-episteme"></div></div>
       </div>
 
       <div class="section-body">
@@ -71,32 +77,38 @@
 
         <div class="entry-list">
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">01 / 02</span>
               <span class="entry-date">April 2026</span>
             </div>
             <div class="entry-body">
               <h3 class="entry-title">Your First Essay</h3>
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="The essay is a form of thinking aloud — honest, not performative.">
                 Begin here. Write what you actually think — not what sounds correct,
                 but what survives honest scrutiny. The essay is a form of thinking aloud.
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">Every great essay starts with a question the writer cannot yet answer. The act of writing is the act of finding out. Don't wait until you have something to say — write to discover what it is.</p>
+              </div>
               <a href="#" class="entry-link">Read</a>
             </div>
           </article>
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">02 / 02</span>
               <span class="entry-date">April 2026</span>
             </div>
             <div class="entry-body">
               <h3 class="entry-title">Another Title</h3>
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="Every title promises something. What does this one deliver?">
                 A short description of the piece. What question does it wrestle with?
                 What, if anything, did you conclude?
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">The conclusion is rarely a resolution. More often it is a sharper version of the original question — refined by the thinking that preceded it.</p>
+              </div>
               <a href="#" class="entry-link">Read</a>
             </div>
           </article>
@@ -106,11 +118,12 @@
     </section>
 
     <!-- ─── THEORIA ───────────────────────────────────────────── -->
-    <section id="theoria" class="section">
-      <div class="section-head">
+    <section id="theoria" class="section ink-bleed">
+      <div class="section-head" data-section="theoria">
         <div class="section-counter">02 / 03</div>
-        <h2 class="section-title">Theoria</h2>
+        <h2 class="section-title" data-parallax>Theoria</h2>
         <p class="section-kicker">Contemplation — literature &amp; reading</p>
+        <div class="section-progress-bar"><div class="section-progress-fill" id="prog-theoria"></div></div>
       </div>
 
       <div class="section-body">
@@ -121,62 +134,90 @@
 
         <div class="entry-list">
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">01 / 04</span>
               <span class="entry-date">Currently</span>
+              <svg class="progress-ring" viewBox="0 0 36 36" aria-hidden="true">
+                <circle class="ring-bg" cx="18" cy="18" r="14"/>
+                <circle class="ring-fill" cx="18" cy="18" r="14" data-progress="45"/>
+              </svg>
             </div>
             <div class="entry-body">
               <h3 class="entry-title">Meditations</h3>
               <p class="entry-author">Marcus Aurelius</p>
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="Written for no one. Read by everyone.">
                 Written for no one but himself, yet it outlasted the empire he commanded.
                 Each entry a small battle against distraction and vanity.
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">Book V is where it becomes human — the reluctance to rise in the morning, the frustration with others, the self-recrimination. The emperor, struggling like the rest of us.</p>
+              </div>
             </div>
           </article>
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">02 / 04</span>
               <span class="entry-date">To Read</span>
+              <svg class="progress-ring" viewBox="0 0 36 36" aria-hidden="true">
+                <circle class="ring-bg" cx="18" cy="18" r="14"/>
+                <circle class="ring-fill" cx="18" cy="18" r="14" data-progress="0"/>
+              </svg>
             </div>
             <div class="entry-body">
               <h3 class="entry-title">Inferno</h3>
               <p class="entry-author">Dante Alighieri</p>
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="Abandon all hope, ye who enter here.">
                 A descent through Hell as a journey toward understanding. The damned
                 are not punished arbitrarily — each soul inhabits the logical
                 conclusion of the life it chose.
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">Midway upon the journey of our life, I found myself within a forest dark, for the straightforward pathway had been lost. It begins with disorientation — and never quite resolves it.</p>
+              </div>
             </div>
           </article>
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">03 / 04</span>
               <span class="entry-date">Read</span>
+              <svg class="progress-ring" viewBox="0 0 36 36" aria-hidden="true">
+                <circle class="ring-bg" cx="18" cy="18" r="14"/>
+                <circle class="ring-fill" cx="18" cy="18" r="14" data-progress="100"/>
+              </svg>
             </div>
             <div class="entry-body">
               <h3 class="entry-title">The Enchiridion</h3>
               <p class="entry-author">Epictetus</p>
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="52 chapters. Each one a small correction.">
                 A short handbook for living. Its brevity is the point.
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">Some things are in our control; others are not. This is the whole of it. The difficulty is remembering which is which in the moment it matters.</p>
+              </div>
             </div>
           </article>
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">04 / 04</span>
               <span class="entry-date">To Read</span>
+              <svg class="progress-ring" viewBox="0 0 36 36" aria-hidden="true">
+                <circle class="ring-bg" cx="18" cy="18" r="14"/>
+                <circle class="ring-fill" cx="18" cy="18" r="14" data-progress="0"/>
+              </svg>
             </div>
             <div class="entry-body">
               <h3 class="entry-title">Add a Book</h3>
               <p class="entry-author">Author Name</p>
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="What draws you to this one?">
                 Why does it sit on your list? What draws you to it?
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">The intention to read is itself a form of engagement — an acknowledgement that this text has something to offer. The gap between intention and completion is where most reading lives.</p>
+              </div>
             </div>
           </article>
 
@@ -185,11 +226,12 @@
     </section>
 
     <!-- ─── PRAGMA ────────────────────────────────────────────── -->
-    <section id="pragma" class="section">
-      <div class="section-head">
+    <section id="pragma" class="section ink-bleed">
+      <div class="section-head" data-section="pragma">
         <div class="section-counter">03 / 03</div>
-        <h2 class="section-title">Pragma</h2>
+        <h2 class="section-title" data-parallax>Pragma</h2>
         <p class="section-kicker">Affairs — what occupies me now</p>
+        <div class="section-progress-bar"><div class="section-progress-fill" id="prog-pragma"></div></div>
       </div>
 
       <div class="section-body">
@@ -200,39 +242,48 @@
 
         <div class="entry-list">
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">01 / 03</span>
               <span class="entry-date">Building</span>
             </div>
             <div class="entry-body">
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="What you build reveals what you value.">
                 Describe something you are currently working on — a project, a habit, a discipline.
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">The act of building is the act of committing. Every choice made excludes a thousand others. That exclusion is the work.</p>
+              </div>
             </div>
           </article>
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">02 / 03</span>
               <span class="entry-date">Thinking About</span>
             </div>
             <div class="entry-body">
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="The questions that circle back are the important ones.">
                 A question or idea that keeps returning. Something unresolved that you find yourself circling.
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">Some questions are not meant to be answered. They are meant to be lived with — companions rather than problems.</p>
+              </div>
             </div>
           </article>
 
-          <article class="entry">
+          <article class="entry" data-expandable>
             <div class="entry-index">
               <span class="entry-counter">03 / 03</span>
               <span class="entry-date">Lately</span>
             </div>
             <div class="entry-body">
-              <p class="entry-copy">
+              <p class="entry-copy" data-annotation="Attention is the rarest form of generosity.">
                 A small observation from recent life. Something noticed, something changed, something begun.
               </p>
+              <div class="entry-extra">
+                <p class="entry-copy">To notice is already to begin understanding. Most of life passes unobserved — the moments we catch are the ones that shape us.</p>
+              </div>
             </div>
           </article>
 
@@ -256,6 +307,61 @@
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- ─── Floating Dock ──────────────────────────────────────── -->
+  <div class="dock" id="dock">
+    <button class="dock-btn" id="dock-dir" aria-label="Directory">
+      <span class="dock-btn-label">Directory</span>
+      <span class="dock-btn-icon">
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+          <rect y="0" width="16" height="1.5" fill="currentColor"/>
+          <rect y="5.25" width="16" height="1.5" fill="currentColor"/>
+          <rect y="10.5" width="16" height="1.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="dock-corner tl"></span>
+      <span class="dock-corner tr"></span>
+      <span class="dock-corner bl"></span>
+      <span class="dock-corner br"></span>
+    </button>
+    <button class="dock-btn" id="dock-sound" aria-label="Sound" onclick="window.__cycleSound && window.__cycleSound()">
+      <span class="dock-btn-label" id="sound-label">Sound</span>
+      <span class="dock-btn-icon" id="sound-bars">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="0"  y="6"  width="2" height="8" fill="currentColor" class="bar b1"/>
+          <rect x="4"  y="3"  width="2" height="11" fill="currentColor" class="bar b2"/>
+          <rect x="8"  y="5"  width="2" height="9" fill="currentColor" class="bar b3"/>
+          <rect x="12" y="7"  width="2" height="7" fill="currentColor" class="bar b4"/>
+        </svg>
+      </span>
+      <span class="dock-corner tl"></span>
+      <span class="dock-corner tr"></span>
+      <span class="dock-corner bl"></span>
+      <span class="dock-corner br"></span>
+    </button>
+  </div>
+
+  <!-- ─── Directory Overlay ────────────────────────────────────── -->
+  <div class="dir-overlay" id="dir-overlay">
+    <button class="dir-close" id="dir-close">✕</button>
+    <div class="dir-grid">
+      <a href="#episteme" class="dir-cell" data-dir-close>
+        <span class="dir-num">01</span>
+        <span class="dir-name">Episteme</span>
+        <span class="dir-sub">Knowledge</span>
+      </a>
+      <a href="#theoria" class="dir-cell" data-dir-close>
+        <span class="dir-num">02</span>
+        <span class="dir-name">Theoria</span>
+        <span class="dir-sub">Contemplation</span>
+      </a>
+      <a href="#pragma" class="dir-cell" data-dir-close>
+        <span class="dir-num">03</span>
+        <span class="dir-name">Pragma</span>
+        <span class="dir-sub">Affairs</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="script.js?v=4"></script>
 </body>
 </html>
