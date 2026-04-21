@@ -32,7 +32,7 @@
     }
     float fbm(vec2 p) {
       float v = 0.0, a = 0.5;
-      for (int i = 0; i < 6; i++) {
+      for (int i = 0; i < 4; i++) {
         v += a * noise(p);
         p  = p * 2.1 + vec2(1.7, 9.2);
         a *= 0.5;
@@ -109,29 +109,43 @@
   let mx = 0, my = 0, glScroll = 0;
   document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
 
+  // Render the shader at HALF resolution — CSS scales the canvas back up.
+  // fbm shader is fragment-heavy; halving the pixel count is ~4× cheaper.
+  const RENDER_SCALE = 0.5;
   function resize() {
-    canvas.width  = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const w = canvas.offsetWidth  * RENDER_SCALE;
+    const h = canvas.offsetHeight * RENDER_SCALE;
+    canvas.width  = Math.max(1, Math.floor(w));
+    canvas.height = Math.max(1, Math.floor(h));
     gl.viewport(0, 0, canvas.width, canvas.height);
   }
   resize();
   window.addEventListener('resize', resize);
 
+  // Pause the shader raf loop when the hero is fully off-screen.
+  let heroVisible = true;
+  const heroEl = document.querySelector('.hero');
+  if (heroEl && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }, { threshold: 0 })
+      .observe(heroEl);
+  }
+
   let start = null;
   function frame(ts) {
+    requestAnimationFrame(frame);
+    if (!heroVisible) return;          // skip work when off-screen
     if (!start) start = ts;
     const t = (ts - start) / 1000;
     glScroll += ((window.__glScrollTarget || 0) - glScroll) * 0.05;
     gl.uniform1f(uTime, t);
     gl.uniform1f(uScroll, glScroll);
     gl.uniform2f(uRes, canvas.width, canvas.height);
-    gl.uniform2f(uMouse, mx, my);
+    gl.uniform2f(uMouse, mx * RENDER_SCALE, my * RENDER_SCALE);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 })();
@@ -142,30 +156,44 @@
   const ring = document.getElementById('cursor-ring');
   if (!dot || !ring) return;
 
-  let mx = 0, my = 0, rx = 0, ry = 0;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  let mx = 0, my = 0, rx = 0, ry = 0, moved = false;
+  const hero = document.querySelector('.hero');
+
+  // Decide whether the cursor's tip is currently over the dark hero area.
+  // Previously this was tied to whether the hero *intersected* the viewport,
+  // which meant the cursor stayed cream-on-cream after the hero began
+  // scrolling off — invisible over Episteme. Now we check the pointer's
+  // own Y against the hero's bottom edge.
+  function updateDark() {
+    if (!hero) return;
+    const bottom = hero.getBoundingClientRect().bottom;
+    document.body.classList.toggle('cursor-on-dark', my < bottom);
+  }
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    if (!moved) { rx = mx; ry = my; moved = true; }
+    updateDark();
+  });
+  window.addEventListener('scroll', updateDark, { passive: true });
 
   (function animCursor() {
-    rx += (mx - rx) * 0.13;
-    ry += (my - ry) * 0.13;
-    dot.style.left  = mx + 'px'; dot.style.top  = my + 'px';
-    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    dot.style.transform  = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
     requestAnimationFrame(animCursor);
   })();
 
-  // Hover state
-  document.querySelectorAll('a, button, .entry, .frame-nav-item').forEach(el => {
-    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  // Hover state — delegated so we don't attach hundreds of listeners.
+  const hoverSel = 'a, button, .entry, .frame-nav-item, .dock-btn, .dir-cell';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest(hoverSel)) document.body.classList.add('cursor-hover');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(hoverSel)) document.body.classList.remove('cursor-hover');
   });
 
-  // Dark/light zone detection (hero is dark)
-  const hero = document.querySelector('.hero');
-  window.addEventListener('scroll', () => {
-    if (!hero) return;
-    const rect = hero.getBoundingClientRect();
-    document.body.classList.toggle('cursor-on-dark', rect.bottom > 0 && rect.top < window.innerHeight);
-  }, { passive: true });
   // Set initial state
   document.body.classList.add('cursor-on-dark');
 })();
@@ -206,42 +234,78 @@
   entries.forEach(el => obs.observe(el));
 })();
 
-// ─── Frame: transparent over hero, frosted-glass after ───────
+// ─── Unified scroll dispatcher ───────────────────────────────
+// Every scroll-driven effect on the page reads through this one rAF-
+// throttled tick — previously each was its own `scroll` listener and
+// each called getBoundingClientRect independently. That was the root
+// cause of the "very laggy / stuck" feel on devices where backdrop-
+// filter + WebGL already eat GPU budget.
 (function () {
   const frame = document.getElementById('frame');
   const hero  = document.querySelector('.hero');
+  const dock  = document.getElementById('dock');
+  const progEpi = document.getElementById('prog-episteme');
+  const progThe = document.getElementById('prog-theoria');
+  const progPra = document.getElementById('prog-pragma');
+  const secEpi  = document.getElementById('episteme');
+  const secThe  = document.getElementById('theoria');
+  const secPra  = document.getElementById('pragma');
 
   let lastY = window.scrollY;
-  function update() {
-    const rect = hero ? hero.getBoundingClientRect() : null;
-    const h    = rect ? rect.height : window.innerHeight;
-    const b    = rect ? rect.bottom : window.innerHeight - window.scrollY;
-    const y    = window.scrollY;
-    const scrollingUp = y < lastY - 1; // small deadzone to ignore jitter
+  let ticking = false;
+
+  function tick() {
+    ticking = false;
+    const y  = window.scrollY;
+    const vh = window.innerHeight;
+    const hRect = hero ? hero.getBoundingClientRect() : null;
+    const hH = hRect ? hRect.height : vh;
+    const hB = hRect ? hRect.bottom : vh - y;
+    const scrollingUp = y < lastY - 1;
     lastY = y;
 
-    const atTop = b > h * 0.85;
-    const past  = b < h * 0.05;
-
-    // Three-state visibility, direction-aware:
-    //  • at the very top of the hero  → transparent white-text nav
-    //  • past the hero                → frosted-bg nav
-    //  • scrolling up anywhere        → frosted-bg nav (always reveal on up)
-    //  • scrolling down through hero  → hidden (so it can't overlap the clock)
-    if (atTop) {
-      frame.classList.add('at-top');
-      frame.classList.remove('scrolled');
-    } else if (past || scrollingUp) {
-      frame.classList.remove('at-top');
-      frame.classList.add('scrolled');
-    } else {
-      frame.classList.remove('at-top', 'scrolled');
+    // Frame 3-state (at-top / scrolled / hidden)
+    if (frame) {
+      const atTop = hB > hH * 0.85;
+      const past  = hB < hH * 0.05;
+      if (atTop) {
+        frame.classList.add('at-top');
+        frame.classList.remove('scrolled');
+      } else if (past || scrollingUp) {
+        frame.classList.remove('at-top');
+        frame.classList.add('scrolled');
+      } else {
+        frame.classList.remove('at-top', 'scrolled');
+      }
     }
+
+    // Dock visibility
+    if (dock) dock.classList.toggle('dock-visible', hB < 0);
+
+    // WebGL scroll distortion (0..1 through the hero)
+    window.__glScrollTarget = Math.min(Math.max(y / hH, 0), 1);
+
+    // Section progress bars (reads 3 rects, but only once per frame)
+    function bar(sec, bar) {
+      if (!sec || !bar) return;
+      const r = sec.getBoundingClientRect();
+      const denom = r.height - vh;
+      const p = denom > 0 ? Math.max(0, Math.min(1, -r.top / denom)) : 0;
+      bar.style.width = (p * 100) + '%';
+    }
+    bar(secEpi, progEpi); bar(secThe, progThe); bar(secPra, progPra);
   }
 
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-  update();
+  function onScroll() {
+    if (!ticking) { ticking = true; requestAnimationFrame(tick); }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  tick();
+
+  // Expose for other modules that still want to piggy-back.
+  window.__scrollKick = onScroll;
 })();
 
 // ─── Live time stamp (header + hero clock) ───────────────────
@@ -494,36 +558,9 @@ document.addEventListener('DOMContentLoaded', () => {
   apply();
 })();
 
-// ─── Scroll → WebGL distortion ────────────────────────────────
-// Exposes window.__setGLScroll so the scroll handler can push a value
-window.__glScrollTarget = 0;
-window.addEventListener('scroll', () => {
-  const hero = document.querySelector('.hero');
-  if (!hero) return;
-  const heroH = hero.offsetHeight;
-  window.__glScrollTarget = Math.min(window.scrollY / heroH, 1);
-}, { passive: true });
-
-// ─── Section Reading Progress Bars ───────────────────────────
-(function () {
-  const sections = [
-    { id: 'episteme', fill: 'prog-episteme' },
-    { id: 'theoria',  fill: 'prog-theoria'  },
-    { id: 'pragma',   fill: 'prog-pragma'   },
-  ];
-  function update() {
-    sections.forEach(({ id, fill }) => {
-      const sec  = document.getElementById(id);
-      const bar  = document.getElementById(fill);
-      if (!sec || !bar) return;
-      const rect = sec.getBoundingClientRect();
-      const prog = Math.max(0, Math.min(1, -rect.top / (rect.height - window.innerHeight)));
-      bar.style.width = (prog * 100) + '%';
-    });
-  }
-  window.addEventListener('scroll', update, { passive: true });
-  update();
-})();
+// (Scroll → WebGL distortion, section progress bars, dock visibility,
+//  and the frame state are all handled in the unified dispatcher above.)
+window.__glScrollTarget = window.__glScrollTarget || 0;
 
 // ─── Ink Bleed Section Entrance ───────────────────────────────
 (function () {
@@ -626,18 +663,7 @@ window.addEventListener('scroll', () => {
   obs.observe(el);
 })();
 
-// ─── Floating Dock (show after hero) ────────────────────────
-(function () {
-  const dock = document.getElementById('dock');
-  if (!dock) return;
-  const hero = document.querySelector('.hero');
-  function update() {
-    const past = hero ? hero.getBoundingClientRect().bottom < 0 : window.scrollY > window.innerHeight;
-    dock.classList.toggle('dock-visible', past);
-  }
-  window.addEventListener('scroll', update, { passive: true });
-  update();
-})();
+// (Floating dock visibility handled by the unified scroll dispatcher above.)
 
 // ─── Directory Overlay ────────────────────────────────────────
 (function () {
