@@ -661,6 +661,101 @@ window.__glScrollTarget = window.__glScrollTarget || 0;
   });
 })();
 
+// ─── Black-hole Cursor ───────────────────────────────────────
+// Text elements near the pointer drift toward it — the cursor ring
+// acts as a small gravity well. Scoped to a curated list of text
+// nodes so the page layout itself doesn't move, and the pull is
+// capped at a few pixels so it reads as a "drift" not a snap.
+//
+// Perf: element centers are cached and recomputed only on scroll /
+// resize / entry reveal, NOT on every mousemove. The per-frame
+// cost is O(n) simple math, no layout reads.
+(function () {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+
+  const SELECTORS = [
+    '.entry-title', '.entry-copy', '.entry-author',
+    '.entry-counter', '.entry-date', '.entry-link',
+    '.section-title', '.section-intro', '.section-kicker',
+    '.footer-name', '.footer-made', '.footer-avail',
+    '.frame-nav-label', '.dir-name', '.dock-btn-label',
+  ].join(', ');
+
+  const R = 180;          // radius of influence, px
+  const PULL_MAX = 12;    // peak offset toward cursor, px
+  const EPS = 0.1;
+
+  const targets = [];
+
+  function collect() {
+    targets.length = 0;
+    document.querySelectorAll(SELECTORS).forEach(el => {
+      // Skip anything inside the loader or currently hidden.
+      if (el.closest('#loader')) return;
+      el.style.transition = 'transform 0.45s cubic-bezier(0.22, 0.9, 0.3, 1)';
+      targets.push({ el, cx: 0, cy: 0, active: false });
+    });
+    measure();
+  }
+
+  function measure() {
+    for (let i = 0; i < targets.length; i++) {
+      const r = targets[i].el.getBoundingClientRect();
+      targets[i].cx = r.left + r.width  / 2;
+      targets[i].cy = r.top  + r.height / 2;
+    }
+  }
+
+  let mx = -9999, my = -9999, pending = false;
+  function tick() {
+    pending = false;
+    for (let i = 0; i < targets.length; i++) {
+      const t = targets[i];
+      const dx = mx - t.cx;
+      const dy = my - t.cy;
+      const d  = Math.hypot(dx, dy);
+      if (d < R) {
+        const falloff = 1 - d / R;          // 0..1
+        const mag = PULL_MAX * falloff;
+        const ux = d > EPS ? dx / d : 0;
+        const uy = d > EPS ? dy / d : 0;
+        t.el.style.transform = `translate(${ux * mag}px, ${uy * mag}px)`;
+        t.active = true;
+      } else if (t.active) {
+        t.el.style.transform = '';
+        t.active = false;
+      }
+    }
+  }
+
+  function schedule() {
+    if (!pending) { pending = true; requestAnimationFrame(tick); }
+  }
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    schedule();
+  });
+
+  // Recompute cached centers when the layout shifts.
+  window.addEventListener('scroll', () => { measure(); schedule(); }, { passive: true });
+  window.addEventListener('resize', () => { measure(); schedule(); });
+
+  // Collect targets once DOM is ready; re-collect once fonts resolve
+  // (font load can shift text box sizes).
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', collect, { once: true });
+  } else {
+    collect();
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(measure).catch(() => {});
+  }
+  // Entries fade-in after a delay — re-measure once they settle.
+  setTimeout(measure, 1200);
+})();
+
 // ─── Magnetic Nav ─────────────────────────────────────────────
 (function () {
   const items = document.querySelectorAll('.frame-nav-item[data-magnetic]');
