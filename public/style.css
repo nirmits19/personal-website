@@ -1,6 +1,66 @@
 /* ─── Reset & Base ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ─── Loading Overlay ─────────────────────────────────────────
+   Covers the viewport while fonts download and the hero image
+   decodes. Fades out the moment everything meaningful is ready,
+   so the first interaction never lands on a janky page.        */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: #0a0806;
+  color: rgba(245,243,238,0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  /* While loading, the page underneath should not receive scroll. */
+  overscroll-behavior: contain;
+}
+.loader.loader-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.loader-word {
+  display: flex;
+  gap: 0.55rem;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+.loader-word span {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: loaderLetter 0.9s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+  animation-delay: calc(var(--i) * 60ms);
+}
+@keyframes loaderLetter {
+  to { opacity: 1; transform: none; }
+}
+.loader-bar {
+  width: min(220px, 40vw);
+  height: 1px;
+  background: rgba(245,243,238,0.15);
+  overflow: hidden;
+}
+.loader-bar-fill {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: rgba(245,243,238,0.7);
+  animation: loaderSlide 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes loaderSlide {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(350%); }
+}
+
+
 :root {
   --bg:         #f5f3ee;
   --bg-raised:  #ffffff;

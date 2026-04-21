@@ -1,3 +1,55 @@
+// ─── Loading Overlay ─────────────────────────────────────────
+// Waits for (fonts ready) + (hero image decoded) + a small floor so
+// the letter-by-letter reveal finishes, then fades the loader.
+// The "lag at first load" the user reported was the browser doing
+// font parse, image decode, and shader compile on the main thread
+// before anything could respond — the loader makes this honest.
+(function () {
+  const loader = document.getElementById('loader');
+  if (!loader) return;
+
+  // Hard safety: never hold the overlay for more than 4 s.
+  const HARD_TIMEOUT = 4000;
+  // Minimum showtime so the letter reveal can complete (~600 ms).
+  const MIN_SHOW = 650;
+  const t0 = performance.now();
+
+  const fontsReady = (document.fonts && document.fonts.ready)
+    ? document.fonts.ready.catch(() => null)
+    : Promise.resolve();
+
+  function imageReady() {
+    const img = document.querySelector('.hero-image img');
+    if (!img) return Promise.resolve();
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise(res => {
+      img.addEventListener('load',  res, { once: true });
+      img.addEventListener('error', res, { once: true });
+    });
+  }
+
+  function domReady() {
+    if (document.readyState !== 'loading') return Promise.resolve();
+    return new Promise(res => {
+      document.addEventListener('DOMContentLoaded', res, { once: true });
+    });
+  }
+
+  function hide() {
+    const wait = Math.max(0, MIN_SHOW - (performance.now() - t0));
+    setTimeout(() => {
+      loader.classList.add('loader-done');
+      // Remove after fade so it doesn't eat pointer events / cost layers.
+      setTimeout(() => loader.remove(), 600);
+    }, wait);
+  }
+
+  Promise.race([
+    Promise.all([fontsReady, imageReady(), domReady()]),
+    new Promise(res => setTimeout(res, HARD_TIMEOUT)),
+  ]).then(hide);
+})();
+
 // ─── WebGL Fluid Hero Shader ──────────────────────────────────
 (function () {
   const canvas = document.getElementById('hero-gl');
