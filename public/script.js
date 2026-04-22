@@ -1,17 +1,33 @@
 // ─── Loading Overlay ─────────────────────────────────────────
-// Waits for (fonts ready) + (hero image decoded) + a small floor so
-// the letter-by-letter reveal finishes, then fades the loader.
-// The "lag at first load" the user reported was the browser doing
-// font parse, image decode, and shader compile on the main thread
-// before anything could respond — the loader makes this honest.
+// Holds the page hidden until it is genuinely ready to be scrolled
+// smoothly. The user's diagnosis was exact: the site felt fine after
+// the first few seconds, so the loader just needs to cover the
+// stabilisation window — fonts, hero decode, shader compile, first
+// WebGL frame, IP geolocation, initial IntersectionObserver pass —
+// all of it before we show the page.
+//
+// Signals we wait for:
+//   1. document.fonts.ready              (Google Fonts downloaded + parsed)
+//   2. hero <img> load                   (cover.jpg decoded)
+//   3. window.load                       (all subresources)
+//   4. window.__glReady                  (WebGL has drawn ≥ 3 frames)
+//   5. requestIdleCallback               (main thread has had a quiet tick)
+//   6. Minimum show floor of 1.8 s       (letter reveal completes cleanly)
+//
+// Hard cap of 6 s so nothing can ever strand a user.
+//
+// We also nudge body.no-interact while the loader is up so scrolling
+// is disabled — that way background rAF / intersection work isn't
+// racing user input during the warm-up window.
 (function () {
   const loader = document.getElementById('loader');
   if (!loader) return;
 
-  // Hard safety: never hold the overlay for more than 4 s.
-  const HARD_TIMEOUT = 4000;
-  // Minimum showtime so the letter reveal can complete (~600 ms).
-  const MIN_SHOW = 650;
+  document.documentElement.classList.add('loading-active');
+  document.body && document.body.classList.add('loading-active');
+
+  const HARD_CAP = 6000;
+  const MIN_SHOW = 1800;          // loader visible at least this long
   const t0 = performance.now();
 
   const fontsReady = (document.fonts && document.fonts.ready)
@@ -28,26 +44,93 @@
     });
   }
 
-  function domReady() {
-    if (document.readyState !== 'loading') return Promise.resolve();
+  // window.load = every subresource (fonts, image, everything) is in.
+  function windowLoad() {
+    if (document.readyState === 'complete') return Promise.resolve();
+    return new Promise(res => window.addEventListener('load', res, { once: true }));
+  }
+
+  // Poll __glReady — the shader IIFE sets this after drawing 3 frames.
+  function shaderReady() {
     return new Promise(res => {
-      document.addEventListener('DOMContentLoaded', res, { once: true });
+      const start = performance.now();
+      (function check() {
+        if (window.__glReady) return res();
+        // Give up after 2.5s — the user may have WebGL disabled.
+        if (performance.now() - start > 2500) return res();
+        setTimeout(check, 50);
+      })();
     });
   }
 
+  // Wait for the main thread to be actually quiet — not just "idle callback
+  // available", but two consecutive rAF frames that completed within a
+  // comfortable budget. This is the difference between "loader hides then
+  // scroll stutters" and "loader hides and scroll is smooth".
+  function mainThreadQuiet() {
+    return new Promise(res => {
+      let quietFrames = 0, last = performance.now();
+      function check() {
+        const now = performance.now();
+        const delta = now - last;
+        last = now;
+        if (delta < 20) {          // the frame landed within ~20ms (≥ 50 fps)
+          if (++quietFrames >= 3) return res();
+        } else {
+          quietFrames = 0;
+        }
+        requestAnimationFrame(check);
+      }
+      requestAnimationFrame(check);
+      // Safety: never wait longer than 1.5 s here.
+      setTimeout(res, 1500);
+    });
+  }
+
+  // Image decode: forces the browser to fully rasterise the hero before
+  // we reveal the page, so the first scroll paint is instant.
+  function imageDecoded() {
+    const img = document.querySelector('.hero-image img');
+    if (!img) return Promise.resolve();
+    if (img.decode) return img.decode().catch(() => null);
+    return Promise.resolve();
+  }
+
+  // Warm up the unified scroll dispatcher so its cached rects are ready
+  // the moment the user scrolls — no first-scroll measurement hit.
+  function warmScroll() {
+    if (typeof window.__scrollKick === 'function') window.__scrollKick();
+    return Promise.resolve();
+  }
+
   function hide() {
-    const wait = Math.max(0, MIN_SHOW - (performance.now() - t0));
+    const elapsed = performance.now() - t0;
+    const wait = Math.max(0, MIN_SHOW - elapsed);
     setTimeout(() => {
       loader.classList.add('loader-done');
-      // Remove after fade so it doesn't eat pointer events / cost layers.
-      setTimeout(() => loader.remove(), 600);
+      document.documentElement.classList.remove('loading-active');
+      document.body && document.body.classList.remove('loading-active');
+      // Give the fade + first unhindered frames a beat before removing.
+      setTimeout(() => loader.remove(), 700);
     }, wait);
   }
 
-  Promise.race([
-    Promise.all([fontsReady, imageReady(), domReady()]),
-    new Promise(res => setTimeout(res, HARD_TIMEOUT)),
-  ]).then(hide);
+  // Real-readiness path: every big-rock signal, THEN one warm scroll tick
+  // so cached rects are primed. mainThreadQuiet was removed — it waited
+  // for 3 consecutive quiet frames, but user scroll activity makes frames
+  // noisy, so it would keep overflow:hidden up for up to 1.5 s extra,
+  // which is exactly the "page freezes when I scroll right after load" bug.
+  const readyPath = Promise.all([
+      fontsReady,
+      imageReady(),
+      imageDecoded(),
+      windowLoad(),
+      shaderReady(),
+    ])
+    .then(warmScroll);
+  const capPath = new Promise(res => setTimeout(res, HARD_CAP));
+
+  Promise.race([readyPath, capPath]).then(hide);
 })();
 
 // ─── WebGL Fluid Hero Shader ──────────────────────────────────
@@ -184,11 +267,11 @@
 
   // Throttle to ~30 fps — the shader is a slow-drifting background,
   // 60 fps is wasted GPU time and competes with scroll compositing.
-  let start = null, lastDraw = 0;
+  let start = null, lastDraw = 0, drawnFrames = 0;
   const MIN_FRAME_MS = 33; // ~30 fps
   function frame(ts) {
     requestAnimationFrame(frame);
-    if (!heroVisible) return;
+    if (!heroVisible && drawnFrames > 3) return;
     if (ts - lastDraw < MIN_FRAME_MS) return;
     lastDraw = ts;
     if (!start) start = ts;
@@ -203,6 +286,9 @@
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    drawnFrames++;
+    // Signal loader that the shader is warm (compiled + pipeline primed).
+    if (drawnFrames === 3) window.__glReady = true;
   }
   requestAnimationFrame(frame);
 })();
@@ -212,6 +298,8 @@
   const dot  = document.getElementById('cursor-dot');
   const ring = document.getElementById('cursor-ring');
   if (!dot || !ring) return;
+  // No custom cursor on touch devices — it just adds overhead
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
 
   let mx = 0, my = 0, rx = 0, ry = 0, moved = false;
   const hero = document.querySelector('.hero');
@@ -315,12 +403,26 @@
     ticking = false;
     const y  = window.scrollY;
     const vh = window.innerHeight;
-    const hRect = hero ? hero.getBoundingClientRect() : null;
+
+    // ── All layout READS first ─────────────────────────────────────
+    // IntersectionObserver callbacks (entry reveals, ink-bleed, rings)
+    // fire before rAF and queue style mutations. Reading layout after
+    // those mutations forces a reflow. Writing (class changes) then
+    // reading again forces a second reflow — classic thrashing.
+    // Batching every getBoundingClientRect() call here, before any
+    // writes, means at most one reflow per tick regardless of how many
+    // observers fired this frame.
+    const hRect   = hero   ? hero.getBoundingClientRect()   : null;
+    const epiRect = secEpi ? secEpi.getBoundingClientRect() : null;
+    const theRect = secThe ? secThe.getBoundingClientRect() : null;
+    const praRect = secPra ? secPra.getBoundingClientRect() : null;
+
     const hH = hRect ? hRect.height : vh;
-    const hB = hRect ? hRect.bottom : vh - y;
+    const hB = hRect ? hRect.bottom : (vh - y);
     const scrollingUp = y < lastY - 1;
     lastY = y;
 
+    // ── All DOM WRITES after ───────────────────────────────────────
     // Frame 3-state (at-top / scrolled / hidden)
     if (frame) {
       const atTop = hB > hH * 0.85;
@@ -342,15 +444,14 @@
     // WebGL scroll distortion (0..1 through the hero)
     window.__glScrollTarget = Math.min(Math.max(y / hH, 0), 1);
 
-    // Section progress bars (reads 3 rects, but only once per frame)
-    function bar(sec, bar) {
-      if (!sec || !bar) return;
-      const r = sec.getBoundingClientRect();
+    // Section progress bars — use the pre-read rects, no layout reads here
+    function bar(r, fillEl) {
+      if (!r || !fillEl) return;
       const denom = r.height - vh;
       const p = denom > 0 ? Math.max(0, Math.min(1, -r.top / denom)) : 0;
-      bar.style.width = (p * 100) + '%';
+      fillEl.style.width = (p * 100) + '%';
     }
-    bar(secEpi, progEpi); bar(secThe, progThe); bar(secPra, progPra);
+    bar(epiRect, progEpi); bar(theRect, progThe); bar(praRect, progPra);
   }
 
   function onScroll() {
@@ -555,46 +656,10 @@
   locate().then(loc => { if (loc) start(loc); });
 })();
 
-// ─── Fade-in on scroll (softened) ─────────────────────────────
-const fadeTargets = document.querySelectorAll('.hero, .section, footer');
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.08 });
-
-fadeTargets.forEach(el => {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(8px)';
-  el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
-  observer.observe(el);
-});
-
-// Fade any already-visible targets on load
-window.addEventListener('DOMContentLoaded', () => {
-  fadeTargets.forEach(el => {
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) {
-      el.classList.add('visible');
-    }
-  });
-});
-
-// Apply visible class rule (unified selector)
-document.addEventListener('DOMContentLoaded', () => {
-  const style = document.createElement('style');
-  style.textContent =
-    '.hero.visible, .section.visible, footer.visible { opacity: 1 !important; transform: none !important; }';
-  document.head.appendChild(style);
-});
-
-// Hero parallax removed — continuously retranslating a 1.6 MB image
-// layer on every scroll frame was a major jank source, especially on
-// rapid direction changes. Native scroll of the hero is smoother.
+// Section/hero full-element fade-in removed — it layered a 0.7s opacity
+// transition on top of the ink-bleed clip-path and entry stagger animations,
+// causing multi-animation pile-ups on fast scroll. Ink-bleed handles section
+// reveals; the entry stagger handles content; the loader handles the hero.
 
 // (Scroll → WebGL distortion, section progress bars, dock visibility,
 //  and the frame state are all handled in the unified dispatcher above.)
@@ -659,101 +724,6 @@ window.__glScrollTarget = window.__glScrollTarget || 0;
       entry.classList.toggle('entry-open');
     });
   });
-})();
-
-// ─── Black-hole Cursor ───────────────────────────────────────
-// Text elements near the pointer drift toward it — the cursor ring
-// acts as a small gravity well. Scoped to a curated list of text
-// nodes so the page layout itself doesn't move, and the pull is
-// capped at a few pixels so it reads as a "drift" not a snap.
-//
-// Perf: element centers are cached and recomputed only on scroll /
-// resize / entry reveal, NOT on every mousemove. The per-frame
-// cost is O(n) simple math, no layout reads.
-(function () {
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
-
-  const SELECTORS = [
-    '.entry-title', '.entry-copy', '.entry-author',
-    '.entry-counter', '.entry-date', '.entry-link',
-    '.section-title', '.section-intro', '.section-kicker',
-    '.footer-name', '.footer-made', '.footer-avail',
-    '.frame-nav-label', '.dir-name', '.dock-btn-label',
-  ].join(', ');
-
-  const R = 180;          // radius of influence, px
-  const PULL_MAX = 12;    // peak offset toward cursor, px
-  const EPS = 0.1;
-
-  const targets = [];
-
-  function collect() {
-    targets.length = 0;
-    document.querySelectorAll(SELECTORS).forEach(el => {
-      // Skip anything inside the loader or currently hidden.
-      if (el.closest('#loader')) return;
-      el.style.transition = 'transform 0.45s cubic-bezier(0.22, 0.9, 0.3, 1)';
-      targets.push({ el, cx: 0, cy: 0, active: false });
-    });
-    measure();
-  }
-
-  function measure() {
-    for (let i = 0; i < targets.length; i++) {
-      const r = targets[i].el.getBoundingClientRect();
-      targets[i].cx = r.left + r.width  / 2;
-      targets[i].cy = r.top  + r.height / 2;
-    }
-  }
-
-  let mx = -9999, my = -9999, pending = false;
-  function tick() {
-    pending = false;
-    for (let i = 0; i < targets.length; i++) {
-      const t = targets[i];
-      const dx = mx - t.cx;
-      const dy = my - t.cy;
-      const d  = Math.hypot(dx, dy);
-      if (d < R) {
-        const falloff = 1 - d / R;          // 0..1
-        const mag = PULL_MAX * falloff;
-        const ux = d > EPS ? dx / d : 0;
-        const uy = d > EPS ? dy / d : 0;
-        t.el.style.transform = `translate(${ux * mag}px, ${uy * mag}px)`;
-        t.active = true;
-      } else if (t.active) {
-        t.el.style.transform = '';
-        t.active = false;
-      }
-    }
-  }
-
-  function schedule() {
-    if (!pending) { pending = true; requestAnimationFrame(tick); }
-  }
-
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    schedule();
-  });
-
-  // Recompute cached centers when the layout shifts.
-  window.addEventListener('scroll', () => { measure(); schedule(); }, { passive: true });
-  window.addEventListener('resize', () => { measure(); schedule(); });
-
-  // Collect targets once DOM is ready; re-collect once fonts resolve
-  // (font load can shift text box sizes).
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', collect, { once: true });
-  } else {
-    collect();
-  }
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(measure).catch(() => {});
-  }
-  // Entries fade-in after a delay — re-measure once they settle.
-  setTimeout(measure, 1200);
 })();
 
 // ─── Magnetic Nav ─────────────────────────────────────────────

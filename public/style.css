@@ -2,9 +2,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ─── Loading Overlay ─────────────────────────────────────────
-   Covers the viewport while fonts download and the hero image
-   decodes. Fades out the moment everything meaningful is ready,
-   so the first interaction never lands on a janky page.        */
+   Held up until the page is genuinely ready — see the loader IIFE
+   in script.js. The letter reveal runs slowly on purpose so the
+   minimum show time (1.8 s) is productive visual time, not a stall. */
 .loader {
   position: fixed;
   inset: 0;
@@ -15,10 +15,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+  gap: 2.5rem;
+  transition: opacity 0.7s ease, visibility 0s linear 0.7s;
   font-family: 'Space Grotesk', system-ui, sans-serif;
-  /* While loading, the page underneath should not receive scroll. */
   overscroll-behavior: contain;
 }
 .loader.loader-done {
@@ -28,37 +27,55 @@
 }
 .loader-word {
   display: flex;
-  gap: 0.55rem;
-  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  gap: 0.6rem;
+  font-size: clamp(1.6rem, 4.2vw, 2.4rem);
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 .loader-word span {
   opacity: 0;
-  transform: translateY(6px);
-  animation: loaderLetter 0.9s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-  animation-delay: calc(var(--i) * 60ms);
+  transform: translateY(14px);
+  animation: loaderLetter 1.1s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+  /* 10 letters × 110 ms = 1.1 s reveal, finishes around 2.2 s */
+  animation-delay: calc(var(--i) * 110ms);
 }
 @keyframes loaderLetter {
-  to { opacity: 1; transform: none; }
+  0%   { opacity: 0; transform: translateY(14px); }
+  60%  { opacity: 1; transform: translateY(0);     }
+  100% { opacity: 1; transform: translateY(0);     }
 }
 .loader-bar {
-  width: min(220px, 40vw);
+  width: min(260px, 44vw);
   height: 1px;
-  background: rgba(245,243,238,0.15);
+  background: rgba(245,243,238,0.12);
   overflow: hidden;
+  position: relative;
 }
 .loader-bar-fill {
   display: block;
-  width: 40%;
+  width: 35%;
   height: 100%;
-  background: rgba(245,243,238,0.7);
-  animation: loaderSlide 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  background: linear-gradient(90deg,
+    rgba(245,243,238,0) 0%,
+    rgba(245,243,238,0.85) 50%,
+    rgba(245,243,238,0) 100%);
+  animation: loaderSlide 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 @keyframes loaderSlide {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(350%); }
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(360%); }
 }
+
+/* Suppress scroll / interaction while the loader is up so background
+   initialisation (shader compile, IO observers, geolocation) doesn't
+   race user input. */
+html.loading-active,
+body.loading-active {
+  overflow: hidden;
+  height: 100%;
+}
+body.loading-active { pointer-events: none; }
+body.loading-active .loader { pointer-events: auto; }
 
 
 :root {
@@ -1028,10 +1045,8 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
   content: ' −';
 }
 
-/* ─── Parallax Section Title ─────────────────────────────────── */
-[data-parallax] {
-  will-change: transform;
-}
+/* [data-parallax] will-change removed — parallax effect was deleted;
+   the compositor layer it created was pure overhead. */
 
 /* ─── Typewriter Footer Quote ────────────────────────────────── */
 .footer-quote .char {
@@ -1056,77 +1071,84 @@ section.visible,
 .hero.visible { opacity: 1 !important; transform: none !important; }
 
 /* ─── Responsive ───────────────────────────────────────────── */
+
+/* 860px — tablet and below */
 @media (max-width: 860px) {
   .section {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  .section-head {
-    grid-column: 1 / -1;
-  }
+  .section-head { grid-column: 1 / -1; }
   .section-body { grid-column: 1 / -1; }
 
   .footer-grid { grid-template-columns: 1fr; }
   .footer-counter, .footer-body { grid-column: 1 / -1; }
 
-  .entry {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+  .entry { grid-template-columns: 1fr; gap: 1rem; }
   .entry-index { flex-direction: row; gap: 1rem; padding-top: 0; }
+
+  /* Frame: ditch the 3-column grid, centre the nav, hide empty flanks.
+     Previously these rules were outside any @media block — a stray }
+     orphaned them so they applied globally, breaking mobile layout. */
+  .frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 1.2rem;
+    gap: 0;
+  }
+  .frame-left,
+  .frame-right { display: none; }
+  .frame-nav {
+    gap: clamp(1.2rem, 5vw, 2.8rem);
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+  .frame-nav-item { gap: 0.15rem; }
+  .frame-nav-num  { font-size: 0.55rem; letter-spacing: 0.12em; }
+  .frame-nav-label { font-size: 0.82rem; letter-spacing: 0.02em; }
 }
 
+/* 560px — phones */
 @media (max-width: 560px) {
   body { font-size: 16px; }
 
-  /* Hero clock: avoid overflow on narrow viewports */
-  .hero-clock { font-size: clamp(2.2rem, 14vw, 3.4rem); }
+  /* Use dvh so the hero fills exactly the visible viewport on iOS Safari */
+  .hero { min-height: 560px; height: 100dvh; }
 
-  /* Directory overlay: one column on small screens */
+  /* Hero clock: fit within 375px viewport — previous value (14vw) was
+     actually larger than the desktop floor, causing right-edge overflow */
+  .hero-clock { font-size: clamp(1.6rem, 9vw, 2.8rem); }
+
+  /* Directory overlay: single column on small screens */
   .dir-grid { grid-template-columns: 1fr; width: min(78vw, 240px); }
-  .dir-cell { min-height: 78px; padding: 14px 16px; flex-direction: row; align-items: center; gap: 14px; }
+  .dir-cell {
+    min-height: 78px; padding: 14px 16px;
+    flex-direction: row; align-items: center; gap: 14px;
+  }
   .dir-cell .dir-name { margin-top: 0; }
 
-  /* Dock on mobile: a little more breathing room, smaller still */
+  /* Dock: tighter on phone */
   .dock { bottom: 14px; gap: 5px; }
   .dock-btn { min-width: 96px; padding: 7px 12px; }
   .dock-btn-label { font-size: 0.68rem; }
+
+  /* Nav: tighter still on the smallest screens */
+  .frame-nav { gap: 0.9rem; }
+  .frame-nav-label { font-size: 0.75rem; }
 }
 
 @media (max-width: 720px) and (min-width: 561px) {
   .dir-grid { grid-template-columns: repeat(2, 150px); }
 }
 
-  /* Flex layout on mobile — nav left, time right, all on one line */
-  .frame {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    gap: 0.6rem;
-    padding: 0.85rem 1.1rem;
-  }
+/* ─── Touch / hover-none devices (phones + tablets) ──────────── */
+@media (hover: none) {
+  /* Custom cursor is pointer-only — hiding saves JS rAF overhead too */
+  #cursor-dot, #cursor-ring { display: none; }
+  body, a, button, .entry, .frame-nav-item { cursor: auto; }
 
-  .frame-nav {
-    gap: 0.95rem;
-    justify-content: flex-start;
-    flex: 0 1 auto;
-    min-width: 0;
-  }
-
-  .frame-nav-item { gap: 0.15rem; }
-  .frame-nav-num { font-size: 0.55rem; letter-spacing: 0.12em; }
-  .frame-nav-label { font-size: 0.78rem; letter-spacing: 0.02em; }
-
-  .time-stamp {
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-    flex: 0 0 auto;
-  }
-
-  /* Hide TZ suffix on the tightest viewports to guarantee no overlap */
-  .time-stamp .tz-label { display: none; }
-
-  .hero { min-height: 560px; }
+  /* Grain animation = 2 repaints/s on a fixed full-screen element.
+     Combined with scroll compositing on mobile this is a major jank source. */
+  body::after { display: none; }
 }
