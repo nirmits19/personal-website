@@ -77,6 +77,83 @@ body.loading-active {
 body.loading-active { pointer-events: none; }
 body.loading-active .loader { pointer-events: auto; }
 
+/* ─── Logo in the loader (centred, fades in with the word reveal) ── */
+.loader-logo-img {
+  width: clamp(90px, 18vw, 150px);
+  height: auto;
+  display: block;
+  opacity: 0;
+  transform: translateY(10px);
+  /* Same timing curve as the letter reveal but starts first */
+  animation: loaderLogoIn 0.9s 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* Keep white on the dark loader bg */
+  filter: brightness(0) invert(1);
+}
+@keyframes loaderLogoIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Logo Mark — fixed corner element ───────────────────────────
+   Starts displaced to the screen centre via transform (matching where
+   the loader logo sits), then transitions to its natural top-left
+   position once the loader dismisses. */
+.logo-mark {
+  position: fixed;
+  top: var(--frame-pad-y);
+  left: var(--page-pad);
+  z-index: 9500;          /* above loader (9000) during the journey  */
+  opacity: 0;
+  pointer-events: none;
+  /* Translate the element's centre to the viewport centre.
+     translate(…) uses the element's own dimensions for % values,
+     so calc(50vw - left - 50%) lands the centre exactly at 50vw. */
+  transform:
+    translate(
+      calc(50vw - var(--page-pad) - 50%),
+      calc(50vh - var(--frame-pad-y) - 50%)
+    )
+    scale(2.2);
+  /* Transition applied once .logo-visible is added */
+  transition:
+    transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity   0.35s ease;
+}
+
+/* Step 1 — make it visible (at centre, scaled up) */
+.logo-mark.logo-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Step 2 — move it to the corner (added one rAF after logo-visible) */
+.logo-mark.logo-settled {
+  transform: none;
+  /* Drop z-index once it has landed so it doesn't sit above the cursor */
+  z-index: 22;
+}
+
+.logo-mark img {
+  display: block;
+  height: clamp(26px, 3vw, 42px);
+  width: auto;
+  /* Force pure white — works whether the source PNG is white-on-transparent
+     or any other colour, because brightness(0) maps everything to black,
+     then invert(1) flips to white. */
+  filter: brightness(0) invert(1);
+  transition: filter 0.35s ease;
+}
+
+/* Over the light content sections — switch to solid black */
+.logo-mark.logo-dark img {
+  filter: brightness(0);
+}
+
+/* Mobile: slightly smaller */
+@media (max-width: 560px) {
+  .logo-mark img { height: clamp(20px, 6vw, 28px); }
+  .loader-logo-img { width: clamp(70px, 22vw, 110px); }
+}
+
 
 :root {
   --bg:         #f5f3ee;

@@ -110,6 +110,19 @@
       loader.classList.add('loader-done');
       document.documentElement.classList.remove('loading-active');
       document.body && document.body.classList.remove('loading-active');
+
+      // ── Logo journey: centre → top-left corner ──────────────────
+      // Make the logo-mark visible (still at centre via transform).
+      // One rAF later, add logo-settled so the CSS transition kicks in
+      // and glides it to its natural position in the top-left corner.
+      const logoMark = document.getElementById('logo-mark');
+      if (logoMark) {
+        logoMark.classList.add('logo-visible');
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          logoMark.classList.add('logo-settled');
+        }));
+      }
+
       // Give the fade + first unhindered frames a beat before removing.
       setTimeout(() => loader.remove(), 700);
     }, wait);
@@ -386,15 +399,16 @@
 // cause of the "very laggy / stuck" feel on devices where backdrop-
 // filter + WebGL already eat GPU budget.
 (function () {
-  const frame = document.getElementById('frame');
-  const hero  = document.querySelector('.hero');
-  const dock  = document.getElementById('dock');
-  const progEpi = document.getElementById('prog-episteme');
-  const progThe = document.getElementById('prog-theoria');
-  const progPra = document.getElementById('prog-pragma');
-  const secEpi  = document.getElementById('episteme');
-  const secThe  = document.getElementById('theoria');
-  const secPra  = document.getElementById('pragma');
+  const frame    = document.getElementById('frame');
+  const hero     = document.querySelector('.hero');
+  const dock     = document.getElementById('dock');
+  const logoMark = document.getElementById('logo-mark');
+  const progEpi  = document.getElementById('prog-episteme');
+  const progThe  = document.getElementById('prog-theoria');
+  const progPra  = document.getElementById('prog-pragma');
+  const secEpi   = document.getElementById('episteme');
+  const secThe   = document.getElementById('theoria');
+  const secPra   = document.getElementById('pragma');
 
   let lastY = window.scrollY;
   let ticking = false;
@@ -440,6 +454,9 @@
 
     // Dock visibility
     if (dock) dock.classList.toggle('dock-visible', hB < 0);
+
+    // Logo colour — white over the dark hero, black over light content
+    if (logoMark) logoMark.classList.toggle('logo-dark', hB < hH * 0.15);
 
     // WebGL scroll distortion (0..1 through the hero)
     window.__glScrollTarget = Math.min(Math.max(y / hH, 0), 1);
