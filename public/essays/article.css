@@ -1,0 +1,220 @@
+/* ─── Article Reading Layout ────────────────────────────────────
+   Standalone styles for essay pages. Imports design tokens from
+   the main site via CSS custom properties — no duplication. */
+
+:root {
+  --bg:        #f5f3ee;
+  --ink:       #0a0a0a;
+  --ink-mute:  #6b6b6b;
+  --ink-soft:  #a8a8a8;
+  --rule:      #1a1a1a;
+  --rule-soft: #d8d5cd;
+  --page-pad:  clamp(1.5rem, 5vw, 4rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink);
+  background-color: var(--bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ─── Film grain (matches main site) ───────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9990;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: grainShift 0.5s steps(1) infinite;
+}
+@keyframes grainShift {
+  0%  { background-position:   0px   0px; }
+  20% { background-position: -48px -20px; }
+  40% { background-position:  24px -56px; }
+  60% { background-position: -72px  12px; }
+  80% { background-position:  16px  48px; }
+}
+
+/* ─── Article Header / Nav ──────────────────────────────────── */
+.article-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem var(--page-pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(245, 243, 238, 0.96);
+  border-bottom: 1px solid var(--rule-soft);
+  z-index: 20;
+}
+
+.article-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  transition: color 0.2s ease, gap 0.2s ease;
+}
+.article-back::before { content: '←'; transition: transform 0.2s ease; }
+.article-back:hover { color: var(--ink); gap: 0.75rem; }
+.article-back:hover::before { transform: translateX(-3px); }
+
+.article-logo img {
+  display: block;
+  height: clamp(22px, 2.5vw, 34px);
+  width: auto;
+  filter: brightness(0);
+}
+
+/* ─── Reading Column ────────────────────────────────────────── */
+.article-main {
+  padding-top: clamp(7rem, 14vh, 10rem);
+  padding-bottom: clamp(5rem, 10vh, 8rem);
+  padding-left: var(--page-pad);
+  padding-right: var(--page-pad);
+}
+
+.article-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* ─── Kicker ────────────────────────────────────────────────── */
+.article-kicker {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.article-kicker::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule-soft);
+  max-width: 48px;
+}
+
+/* ─── Title ─────────────────────────────────────────────────── */
+.article-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 2rem;
+}
+
+/* ─── Divider ───────────────────────────────────────────────── */
+.article-rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin-bottom: 2.8rem;
+}
+
+/* ─── Body Prose ────────────────────────────────────────────── */
+.article-body {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+.article-body p {
+  margin-bottom: 1.6em;
+}
+
+.article-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ─── Footer ────────────────────────────────────────────────── */
+.article-footer {
+  padding: clamp(4rem, 8vh, 6rem) var(--page-pad) clamp(3rem, 6vh, 4rem);
+  border-top: 1px solid var(--rule);
+}
+
+.article-footer-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.article-footer-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.article-footer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 2px;
+  transition: gap 0.2s ease;
+}
+.article-footer-back::before { content: '←'; }
+.article-footer-back:hover { gap: 0.8rem; }
+
+/* ─── Fade-in entrance ──────────────────────────────────────── */
+.article-wrap {
+  animation: articleIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes articleIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Mobile ────────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .article-title {
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+  }
+  .article-body {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  .article-footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+}
