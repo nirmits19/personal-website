@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="preload" as="image" href="cover.jpg" fetchpriority="high" />
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=11" />
 
 </head>
 <body>
@@ -18,8 +18,10 @@
   <!-- ─── Loading Overlay ─── -->
   <div id="loader" class="loader" aria-hidden="true">
     <img src="logo.png" class="loader-logo-img" alt="" aria-hidden="true" />
-    <div class="loader-word">
-      <span style="--i:0">E</span><span style="--i:1">U</span><span style="--i:2">D</span><span style="--i:3">A</span><span style="--i:4">I</span><span style="--i:5">M</span><span style="--i:6">O</span><span style="--i:7">N</span><span style="--i:8">I</span><span style="--i:9">A</span>
+    <div class="loader-word" aria-label="Build hard things">
+      <span class="loader-w"><span style="--i:0">B</span><span style="--i:1">U</span><span style="--i:2">I</span><span style="--i:3">L</span><span style="--i:4">D</span></span>
+      <span class="loader-w"><span style="--i:5">H</span><span style="--i:6">A</span><span style="--i:7">R</span><span style="--i:8">D</span></span>
+      <span class="loader-w"><span style="--i:9">T</span><span style="--i:10">H</span><span style="--i:11">I</span><span style="--i:12">N</span><span style="--i:13">G</span><span style="--i:14">S</span></span>
     </div>
     <div class="loader-bar"><div class="loader-bar-fill"></div></div>
   </div>
@@ -59,9 +61,6 @@
     <div class="hero-image">
       <img src="cover.jpg" alt="" width="1245" height="848" decoding="async" fetchpriority="high" />
     </div>
-    <div class="hero-title" aria-label="Eudaimonia">
-      <span class="hero-letter" style="--i:0">E</span><span class="hero-letter" style="--i:1">U</span><span class="hero-letter" style="--i:2">D</span><span class="hero-letter" style="--i:3">A</span><span class="hero-letter" style="--i:4">I</span><span class="hero-letter" style="--i:5">M</span><span class="hero-letter" style="--i:6">O</span><span class="hero-letter" style="--i:7">N</span><span class="hero-letter" style="--i:8">I</span><span class="hero-letter" style="--i:9">A</span>
-    </div>
     <div class="hero-clock-group">
       <div class="hero-clock" id="hero-clock">00:00:00</div>
       <div class="hero-sunset" id="sunset-countdown">&nbsp;</div>
@@ -75,11 +74,13 @@
   <main>
 
     <!-- ─── EPISTEME ─── -->
-    <section id="episteme" class="section ink-bleed">
+    <section id="episteme" class="section ink-bleed section--inline-head">
       <div class="section-head" data-section="episteme">
         <div class="section-counter">01 / 03</div>
-        <h2 class="section-title" data-parallax>Episteme</h2>
-        <p class="section-kicker">Knowledge — writings &amp; essays</p>
+        <div class="section-head-row">
+          <h2 class="section-title" data-parallax>Episteme</h2>
+          <p class="section-kicker">Knowledge — writings &amp; essays</p>
+        </div>
         <div class="section-progress-bar"><div class="section-progress-fill" id="prog-episteme"></div></div>
       </div>
 
@@ -89,84 +90,72 @@
           Written not to persuade, but to understand.
         </p>
 
-        <div class="entry-list">
+        <div class="essay-grid">
 
-          <article class="entry" data-expandable>
-            <div class="entry-index">
-              <span class="entry-counter">01 / 05</span>
-              <span class="entry-date">April 2026</span>
+          <a href="essays/what-makes-a-modern-man.html" class="essay-card">
+            <div class="essay-card-img">
+              <img src="essays/cover-modern-man.jpg" alt="What makes a modern man" loading="lazy" />
             </div>
-            <div class="entry-body">
-              <h3 class="entry-title">What makes a modern man</h3>
-              <p class="entry-copy" data-annotation="Not stoicism. Not the gym. Something harder to name and harder to fake.">
-                Men have more options than any generation before them and somehow feel more
-                directionless. This is not a coincidence. It is what happens when identity
-                becomes opt-in.
-              </p>
-              <div class="entry-extra">
-                <p class="entry-copy">The old systems — church, guild, military rite — didn't ask if you wanted an identity. They assigned one. Modernity dissolved those assignments and left the question open. Most men are still waiting for someone to answer it for them.</p>
+            <div class="essay-card-body">
+              <h3 class="essay-card-title">What makes a modern man</h3>
+              <p class="essay-card-desc">Identity becomes opt-in, and most men are still waiting for someone to answer the question for them.</p>
+              <span class="essay-card-link">Read essay</span>
+              <div class="essay-card-meta">
+                <span class="essay-card-num">01 / 05</span>
+                <span class="essay-card-date">April 2026 · 8 min</span>
               </div>
-              <a href="essays/what-makes-a-modern-man.html" class="entry-link">Read</a>
+            </div>
+          </a>
+
+          <article class="essay-card essay-card--coming" aria-disabled="true">
+            <div class="essay-card-img essay-card-img--placeholder" data-label="Coming"></div>
+            <div class="essay-card-body">
+              <h3 class="essay-card-title">Build your life around what you want, not what you need</h3>
+              <p class="essay-card-desc">Needs are a floor. Wants are a compass. Organize your time around the second.</p>
+              <span class="essay-card-link essay-card-link--muted">Coming soon</span>
+              <div class="essay-card-meta">
+                <span class="essay-card-num">02 / 05</span>
+                <span class="essay-card-date">Coming</span>
+              </div>
             </div>
           </article>
 
-          <article class="entry">
-            <div class="entry-index">
-              <span class="entry-counter">02 / 05</span>
-              <span class="entry-date">Coming</span>
-            </div>
-            <div class="entry-body">
-              <h3 class="entry-title">Build your life around what you want, not what you need</h3>
-              <p class="entry-copy" data-annotation="Need is a floor. Want is a direction.">
-                Needs are a list of obligations you eventually complete. Wants are a compass.
-                The difference between a life that feels chosen and one that merely happened
-                is which of the two you organized your time around.
-              </p>
+          <article class="essay-card essay-card--coming" aria-disabled="true">
+            <div class="essay-card-img essay-card-img--placeholder" data-label="Coming"></div>
+            <div class="essay-card-body">
+              <h3 class="essay-card-title">Perfection is the killer of speed, unless it's the 911</h3>
+              <p class="essay-card-desc">Most things don't deserve your best work. Knowing which ones do is the whole skill.</p>
+              <span class="essay-card-link essay-card-link--muted">Coming soon</span>
+              <div class="essay-card-meta">
+                <span class="essay-card-num">03 / 05</span>
+                <span class="essay-card-date">Coming</span>
+              </div>
             </div>
           </article>
 
-          <article class="entry">
-            <div class="entry-index">
-              <span class="entry-counter">03 / 05</span>
-              <span class="entry-date">Coming</span>
-            </div>
-            <div class="entry-body">
-              <h3 class="entry-title">Perfection is the killer of speed, unless it's the 911</h3>
-              <p class="entry-copy" data-annotation="Know when done is enough and when it isn't.">
-                Most things do not deserve your best work. Some things, the ones you'll
-                still be living with in a decade, deserve nothing less. The error is
-                applying the same standard to both.
-              </p>
+          <article class="essay-card essay-card--coming" aria-disabled="true">
+            <div class="essay-card-img essay-card-img--placeholder" data-label="Coming"></div>
+            <div class="essay-card-body">
+              <h3 class="essay-card-title">Death = Complacency</h3>
+              <p class="essay-card-desc">Comfort kills slowly enough that you don't notice it's killing you.</p>
+              <span class="essay-card-link essay-card-link--muted">Coming soon</span>
+              <div class="essay-card-meta">
+                <span class="essay-card-num">04 / 05</span>
+                <span class="essay-card-date">Coming</span>
+              </div>
             </div>
           </article>
 
-          <article class="entry">
-            <div class="entry-index">
-              <span class="entry-counter">04 / 05</span>
-              <span class="entry-date">Coming</span>
-            </div>
-            <div class="entry-body">
-              <h3 class="entry-title">Death = Complacency</h3>
-              <p class="entry-copy" data-annotation="Comfort is the thing that kills you slowly enough that you don't notice.">
-                You don't need a terminal diagnosis to understand urgency. Look at anyone
-                who stopped pushing and ask yourself how long it took before they stopped
-                being interesting.
-              </p>
-            </div>
-          </article>
-
-          <article class="entry">
-            <div class="entry-index">
-              <span class="entry-counter">05 / 05</span>
-              <span class="entry-date">Coming</span>
-            </div>
-            <div class="entry-body">
-              <h3 class="entry-title">Waffle is how you get rich</h3>
-              <p class="entry-copy" data-annotation="The patient man inherits everything the impatient man abandoned.">
-                Every market, every craft, every relationship rewards the person who showed
-                up longest. Not the smartest. Not the most talented. The one who was still
-                there when everyone else had moved on to something easier.
-              </p>
+          <article class="essay-card essay-card--coming" aria-disabled="true">
+            <div class="essay-card-img essay-card-img--placeholder" data-label="Coming"></div>
+            <div class="essay-card-body">
+              <h3 class="essay-card-title">Waffle is how you get rich</h3>
+              <p class="essay-card-desc">Every market rewards the one who was still there when everyone else moved on.</p>
+              <span class="essay-card-link essay-card-link--muted">Coming soon</span>
+              <div class="essay-card-meta">
+                <span class="essay-card-num">05 / 05</span>
+                <span class="essay-card-date">Coming</span>
+              </div>
             </div>
           </article>
 

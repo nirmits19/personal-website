@@ -27,17 +27,22 @@
 }
 .loader-word {
   display: flex;
-  gap: 0.6rem;
+  gap: 1.1rem;
   font-size: clamp(1.6rem, 4.2vw, 2.4rem);
   font-weight: 500;
   letter-spacing: 0.14em;
 }
-.loader-word span {
+.loader-word .loader-w {
+  display: inline-flex;
+  gap: 0.06em;
+}
+.loader-word .loader-w > span {
+  display: inline-block;
   opacity: 0;
   transform: translateY(14px);
   animation: loaderLetter 1.1s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-  /* 10 letters × 110 ms = 1.1 s reveal, finishes around 2.2 s */
-  animation-delay: calc(var(--i) * 110ms);
+  /* 15 letters × 90 ms ≈ 1.35 s reveal */
+  animation-delay: calc(var(--i) * 90ms);
 }
 @keyframes loaderLetter {
   0%   { opacity: 0; transform: translateY(14px); }
@@ -1147,6 +1152,167 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
 section.visible,
 .hero.visible { opacity: 1 !important; transform: none !important; }
 
+/* ─── Inline section head (Episteme) ─────────────────────────── */
+/* Counter on top, title + kicker side-by-side, then body spans full width below. */
+.section--inline-head {
+  grid-template-columns: repeat(12, 1fr);
+}
+.section--inline-head .section-head {
+  grid-column: 1 / -1;
+  align-self: start;
+  padding-bottom: 0.4rem;
+  gap: 0.7rem;
+}
+.section--inline-head .section-head-row {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  flex-wrap: wrap;
+}
+.section--inline-head .section-head-row .section-kicker {
+  max-width: none;
+  margin: 0;
+}
+.section--inline-head .section-body {
+  grid-column: 1 / -1;
+  margin-top: 1.4rem;
+}
+.section--inline-head .section-intro {
+  max-width: 60ch;
+}
+
+/* ─── Essay Grid (cards) ─────────────────────────────────────── */
+.essay-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.4rem, 2.4vw, 2.2rem);
+  margin-top: 0.6rem;
+}
+
+.essay-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-raised, #f1ede4);
+  border: 1px solid var(--rule-soft, rgba(10,10,10,0.08));
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.35s cubic-bezier(0.16,1,0.3,1),
+              border-color 0.25s ease;
+}
+a.essay-card { cursor: none; }
+a.essay-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -20px rgba(10,10,10,0.18);
+  border-color: rgba(10,10,10,0.18);
+}
+
+.essay-card-img {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #ece8df;
+  border-bottom: 1px solid var(--rule-soft, rgba(10,10,10,0.08));
+}
+.essay-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+a.essay-card:hover .essay-card-img img {
+  transform: scale(1.04);
+}
+.essay-card-img--placeholder {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      #ece8df,
+      #ece8df 12px,
+      #e6e2d8 12px,
+      #e6e2d8 13px
+    );
+}
+.essay-card-img--placeholder::after {
+  content: attr(data-label);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(10,10,10,0.32);
+}
+
+.essay-card-body {
+  padding: 1.4rem 1.4rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.7rem;
+}
+
+.essay-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.12rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.essay-card-desc {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink-mute);
+  margin: 0;
+  flex: 1;
+}
+
+.essay-card-link {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--ink);
+  align-self: flex-start;
+  transition: gap 0.25s ease;
+}
+.essay-card-link::after { content: '→'; }
+a.essay-card:hover .essay-card-link { gap: 0.85rem; }
+.essay-card-link--muted {
+  color: var(--ink-soft);
+  border-bottom-color: var(--rule-soft, rgba(10,10,10,0.18));
+}
+
+.essay-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule-soft, rgba(10,10,10,0.08));
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.essay-card--coming { opacity: 0.85; }
+
 /* ─── Responsive ───────────────────────────────────────────── */
 
 /* 860px — tablet and below */
@@ -1163,6 +1329,9 @@ section.visible,
 
   .entry { grid-template-columns: 1fr; gap: 1rem; }
   .entry-index { flex-direction: row; gap: 1rem; padding-top: 0; }
+
+  .essay-grid { grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+  .section--inline-head .section-head-row { gap: 0.9rem; }
 
   /* Frame: ditch the 3-column grid, centre the nav, hide empty flanks.
      Previously these rules were outside any @media block — a stray }
@@ -1213,6 +1382,8 @@ section.visible,
   /* Nav: tighter still on the smallest screens */
   .frame-nav { gap: 0.9rem; }
   .frame-nav-label { font-size: 0.75rem; }
+
+  .essay-grid { grid-template-columns: 1fr; gap: 1rem; }
 }
 
 @media (max-width: 720px) and (min-width: 561px) {
