@@ -10,343 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="preload" as="image" href="cover.jpg" fetchpriority="high" />
-  <link rel="stylesheet" href="style.css?v=8" />
+  <link rel="stylesheet" href="style.css?v=10" />
 
-  <style>
-    /* ─── BOOKSHELF ──────────────────────────────────────────────── */
-    .bookshelf-outer {
-      position: relative;
-      grid-column: 1 / -1;
-      margin-top: 0;
-    }
-
-    /* horizontal scroll container */
-    .bookshelf-scroll {
-      overflow-x: auto;
-      overflow-y: visible;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-      padding: 48px 0 0;
-      cursor: grab;
-      user-select: none;
-    }
-    .bookshelf-scroll::-webkit-scrollbar { display: none; }
-    .bookshelf-scroll.is-grabbing { cursor: grabbing; }
-
-    /* the row of books */
-    .bookshelf-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 3px;
-      width: max-content;
-      padding: 0 0 0 2px;
-    }
-
-    /* shelf plank — a single dark rule with a shadow */
-    .shelf-floor {
-      height: 10px;
-      background: linear-gradient(to bottom, var(--rule) 0px, rgba(10,10,10,0.08) 10px);
-      margin: 0;
-      box-shadow: 0 4px 24px rgba(10,10,10,0.12);
-    }
-
-    /* ── individual book ── */
-    .book {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      flex-shrink: 0;
-      cursor: none;
-      transform-origin: bottom center;
-      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
-      position: relative;
-    }
-    .book:hover  { transform: translateY(-12px); }
-    .book.b-open { transform: translateY(-12px); }
-
-    /* top edge — the pages */
-    .book-top {
-      height: 6px;
-      background: linear-gradient(
-        to bottom,
-        rgba(245,243,238,0.9) 0%,
-        rgba(200,196,188,0.5) 100%
-      );
-      border-left: 1px solid rgba(10,10,10,0.08);
-      border-right: 1px solid rgba(10,10,10,0.08);
-      /* stacked pages illusion */
-      box-shadow: inset 0 -1px 0 rgba(10,10,10,0.05),
-                  inset 0 -2px 0 rgba(10,10,10,0.04),
-                  inset 0 -3px 0 rgba(10,10,10,0.03);
-    }
-
-    /* spine body */
-    .book-spine {
-      width: 48px;
-      height: auto;
-      min-height: 160px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 16px 10px 14px;
-      border-left: 1px solid rgba(10,10,10,0.1);
-      border-right: 1px solid rgba(10,10,10,0.08);
-      /* inner crease */
-      box-shadow:
-        inset 3px 0 6px rgba(10,10,10,0.06),
-        inset -2px 0 4px rgba(255,255,255,0.5);
-      overflow: hidden;
-    }
-
-    /* faint grain on each spine */
-    .book-spine::before {
-      content: '';
-      position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 80 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      opacity: 0.045;
-      pointer-events: none;
-    }
-
-    /* title — bottom-to-top */
-    .spine-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      line-height: 1.25;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .spine-cat {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 7px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      writing-mode: vertical-rl;
-      margin-top: 10px;
-    }
-
-    .spine-num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 8px;
-      letter-spacing: 0.1em;
-      color: var(--ink-soft);
-      writing-mode: vertical-rl;
-      opacity: 0.45;
-    }
-
-    /* red accent strip on the spine left edge */
-    .book-spine::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; bottom: 0;
-      width: 3px;
-      background: #8b1a1a;
-      opacity: 0;
-      transition: opacity 0.25s;
-    }
-    .book:hover .book-spine::after,
-    .book.b-open .book-spine::after { opacity: 1; }
-
-    /* ── card popup ── */
-    .book-card {
-      position: absolute;
-      bottom: calc(100% + 14px);
-      left: 50%;
-      transform: translateX(-50%) translateY(10px) scale(0.95);
-      width: 220px;
-      background: var(--bg-raised);
-      border: 1px solid var(--rule-soft);
-      box-shadow: 0 20px 60px rgba(10,10,10,0.14), 0 4px 12px rgba(10,10,10,0.08);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.28s cubic-bezier(0.16,1,0.3,1),
-                  transform 0.32s cubic-bezier(0.16,1,0.3,1);
-      z-index: 50;
-    }
-    .book.b-open .book-card {
-      opacity: 1;
-      pointer-events: all;
-      transform: translateX(-50%) translateY(0) scale(1);
-    }
-
-    /* card image */
-    .bcard-img {
-      width: 100%;
-      aspect-ratio: 3/2;
-      overflow: hidden;
-      position: relative;
-      background: #e8e4dc;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .bcard-img img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    /* striped placeholder when no image */
-    .bcard-img.no-img {
-      background: repeating-linear-gradient(
-        -45deg,
-        #ece8e0,
-        #ece8e0 10px,
-        #e4e0d8 10px,
-        #e4e0d8 11px
-      );
-    }
-    .bcard-img.no-img::after {
-      content: attr(data-label);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 8px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(10,10,10,0.3);
-      position: absolute;
-    }
-
-    .bcard-body {
-      padding: 16px 16px 18px;
-      border-top: 1px solid var(--rule-soft);
-    }
-    .bcard-cat {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 8px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #8b1a1a;
-      margin-bottom: 7px;
-      display: flex; align-items: center; gap: 5px;
-    }
-    .bcard-cat::before {
-      content: '';
-      display: inline-block;
-      width: 5px; height: 5px;
-      background: #8b1a1a;
-      flex-shrink: 0;
-    }
-    .bcard-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 1.25;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-      margin-bottom: 8px;
-    }
-    .bcard-date {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      margin-bottom: 14px;
-    }
-    .bcard-link {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink);
-      text-decoration: none;
-      display: inline-flex; align-items: center; gap: 6px;
-      border-bottom: 1px solid var(--ink);
-      padding-bottom: 2px;
-      transition: gap 0.2s;
-    }
-    .bcard-link::after { content: '→'; }
-    .bcard-link:hover { gap: 10px; }
-
-    /* card tail */
-    .book-card::after {
-      content: '';
-      position: absolute;
-      bottom: -6px; left: 50%;
-      transform: translateX(-50%) rotate(45deg);
-      width: 11px; height: 11px;
-      background: var(--bg-raised);
-      border-right: 1px solid var(--rule-soft);
-      border-bottom: 1px solid var(--rule-soft);
-    }
-
-    /* fade edges */
-    .bookshelf-outer::before,
-    .bookshelf-outer::after {
-      content: '';
-      position: absolute;
-      top: 0; bottom: 0;
-      width: 60px;
-      z-index: 5;
-      pointer-events: none;
-    }
-    .bookshelf-outer::before {
-      left: 0;
-      background: linear-gradient(to right, var(--bg) 0%, transparent 100%);
-    }
-    .bookshelf-outer::after {
-      right: 0;
-      background: linear-gradient(to left, var(--bg) 0%, transparent 100%);
-    }
-
-    /* hint bar */
-    .shelf-hint {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 20px;
-    }
-    .shelf-hint-text {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-    }
-    .shelf-arrows {
-      display: flex; gap: 4px;
-    }
-    .shelf-btn {
-      background: none;
-      border: 1px solid var(--rule-soft);
-      color: var(--ink-mute);
-      width: 30px; height: 30px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px;
-      cursor: none;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-    .shelf-btn:hover {
-      background: var(--ink);
-      color: var(--bg);
-      border-color: var(--ink);
-    }
-
-    /* spine colour palette — subtle paper tones */
-    .book:nth-child(1)  .book-spine { background: #f0ece3; }
-    .book:nth-child(2)  .book-spine { background: #edeae1; }
-    .book:nth-child(3)  .book-spine { background: #ece7dc; }
-    .book:nth-child(4)  .book-spine { background: #efe9e0; }
-    .book:nth-child(5)  .book-spine { background: #eae6dd; }
-    .book:nth-child(6)  .book-spine { background: #f2ede4; }
-    .book:nth-child(7)  .book-spine { background: #edebe2; }
-    .book:nth-child(8)  .book-spine { background: #eee9e0; }
-
-    /* book-top always matches spine width */
-    .book-top { width: 100%; }
-
-    /* entry-extra expand */
-    .entry-extra {
-      display: none;
-    }
-    .entry.entry-open .entry-extra {
-      display: block;
-    }
-  </style>
 </head>
 <body>
 
@@ -410,7 +75,7 @@
   <main>
 
     <!-- ─── EPISTEME ─── -->
-    <section id="episteme" class="section ink-bleed" style="row-gap: clamp(1rem, 2vw, 1.5rem);">
+    <section id="episteme" class="section ink-bleed">
       <div class="section-head" data-section="episteme">
         <div class="section-counter">01 / 03</div>
         <h2 class="section-title" data-parallax>Episteme</h2>
@@ -423,134 +88,90 @@
           What follows are attempts to think clearly about things that resist it.
           Written not to persuade, but to understand.
         </p>
-      </div>
 
-      <!-- ─── BOOKSHELF ─── -->
-      <div class="bookshelf-outer">
-          <div class="bookshelf-scroll" id="shelf-scroll">
-            <div class="bookshelf-row" id="shelf-row">
+        <div class="entry-list">
 
-              <!-- Book 1 -->
-              <div class="book entry entry-visible" data-index="0">
-                <div class="book-top" style="width:80px;"></div>
-                <div class="book-spine" style="padding:0; width:80px; height:340px; overflow:hidden;">
-                  <img src="book1-spine.png" alt="What makes a modern man" style="width:100%; height:100%; object-fit:cover; display:block;" />
-                </div>
-                <div class="book-card">
-                  <div class="bcard-img">
-                    <img src="cover.jpg" alt="" />
-                  </div>
-                  <div class="bcard-body">
-                    <div class="bcard-cat">Essay</div>
-                    <div class="bcard-title">What makes a modern man</div>
-                    <div class="bcard-date">April 2026 · 8 min read</div>
-                    <a href="essays/what-makes-a-modern-man.html" class="bcard-link">Read</a>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Book 2 -->
-              <div class="book entry entry-visible" data-index="1">
-                <div class="book-top"></div>
-                <div class="book-spine">
-                  <div class="spine-title">Build your life around what you want, not what you need</div>
-                  <div class="spine-cat">Essay</div>
-                  <div class="spine-num">02</div>
-                </div>
-                <div class="book-card">
-                  <div class="bcard-img no-img" data-label="Coming soon"></div>
-                  <div class="bcard-body">
-                    <div class="bcard-cat">Essay</div>
-                    <div class="bcard-title">Build your life around what you want, not what you need</div>
-                    <div class="bcard-date">Coming</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Book 3 -->
-              <div class="book entry entry-visible" data-index="2">
-                <div class="book-top"></div>
-                <div class="book-spine" style="justify-content: center; text-align: left; border-color: rgb(0, 0, 0)">
-                  <div class="spine-title" style="text-align: left">Perfection is the killer of speed — unless it's the 911</div>
-                  <div class="spine-cat">Essay</div>
-                  <div class="spine-num">03</div>
-                </div>
-                <div class="book-card">
-                  <div class="bcard-img no-img" data-label="Coming soon"></div>
-                  <div class="bcard-body">
-                    <div class="bcard-cat">Essay</div>
-                    <div class="bcard-title">Perfection is the killer of speed — unless it's the 911</div>
-                    <div class="bcard-date">Coming</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Book 4 -->
-              <div class="book entry entry-visible" data-index="3">
-                <div class="book-top"></div>
-                <div class="book-spine">
-                  <div class="spine-title">Death = Complacency</div>
-                  <div class="spine-cat">Essay</div>
-                  <div class="spine-num">04</div>
-                </div>
-                <div class="book-card">
-                  <div class="bcard-img no-img" data-label="Coming soon"></div>
-                  <div class="bcard-body">
-                    <div class="bcard-cat">Essay</div>
-                    <div class="bcard-title">Death = Complacency</div>
-                    <div class="bcard-date">Coming</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Book 5 -->
-              <div class="book entry entry-visible" data-index="4">
-                <div class="book-top"></div>
-                <div class="book-spine">
-                  <div class="spine-title">Waffle is how you get rich</div>
-                  <div class="spine-cat">Essay</div>
-                  <div class="spine-num">05</div>
-                </div>
-                <div class="book-card">
-                  <div class="bcard-img no-img" data-label="Coming soon"></div>
-                  <div class="bcard-body">
-                    <div class="bcard-cat">Essay</div>
-                    <div class="bcard-title">Waffle is how you get rich</div>
-                    <div class="bcard-date">Coming</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Book 6 — placeholder for future -->
-              <div class="book entry entry-visible" data-index="5" style="opacity:0.4;">
-                <div class="book-top"></div>
-                <div class="book-spine" style="background:#ede8df;">
-                  <div class="spine-title" style="color:rgba(10,10,10,0.3);">— coming —</div>
-                  <div class="spine-num" style="opacity:0.3;">06</div>
-                </div>
-              </div>
-
-              <div class="book entry entry-visible" data-index="6" style="opacity:0.25;">
-                <div class="book-top"></div>
-                <div class="book-spine" style="background:#eee9e1;">
-                  <div class="spine-title" style="color:rgba(10,10,10,0.2);">— coming —</div>
-                  <div class="spine-num" style="opacity:0.2;">07</div>
-                </div>
-              </div>
-
-            </div><!-- /.bookshelf-row -->
-          </div><!-- /.bookshelf-scroll -->
-
-          <div class="shelf-floor"></div>
-
-          <div class="shelf-hint">
-            <span class="shelf-hint-text">Drag to browse · click to open</span>
-            <div class="shelf-arrows">
-              <button class="shelf-btn" id="shelf-prev" aria-label="Previous">←</button>
-              <button class="shelf-btn" id="shelf-next" aria-label="Next">→</button>
+          <article class="entry" data-expandable>
+            <div class="entry-index">
+              <span class="entry-counter">01 / 05</span>
+              <span class="entry-date">April 2026</span>
             </div>
-          </div>
-      </div><!-- /.bookshelf-outer -->
+            <div class="entry-body">
+              <h3 class="entry-title">What makes a modern man</h3>
+              <p class="entry-copy" data-annotation="Not stoicism. Not the gym. Something harder to name and harder to fake.">
+                Men have more options than any generation before them and somehow feel more
+                directionless. This is not a coincidence. It is what happens when identity
+                becomes opt-in.
+              </p>
+              <div class="entry-extra">
+                <p class="entry-copy">The old systems — church, guild, military rite — didn't ask if you wanted an identity. They assigned one. Modernity dissolved those assignments and left the question open. Most men are still waiting for someone to answer it for them.</p>
+              </div>
+              <a href="essays/what-makes-a-modern-man.html" class="entry-link">Read</a>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">02 / 05</span>
+              <span class="entry-date">Coming</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Build your life around what you want, not what you need</h3>
+              <p class="entry-copy" data-annotation="Need is a floor. Want is a direction.">
+                Needs are a list of obligations you eventually complete. Wants are a compass.
+                The difference between a life that feels chosen and one that merely happened
+                is which of the two you organized your time around.
+              </p>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">03 / 05</span>
+              <span class="entry-date">Coming</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Perfection is the killer of speed, unless it's the 911</h3>
+              <p class="entry-copy" data-annotation="Know when done is enough and when it isn't.">
+                Most things do not deserve your best work. Some things, the ones you'll
+                still be living with in a decade, deserve nothing less. The error is
+                applying the same standard to both.
+              </p>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">04 / 05</span>
+              <span class="entry-date">Coming</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Death = Complacency</h3>
+              <p class="entry-copy" data-annotation="Comfort is the thing that kills you slowly enough that you don't notice.">
+                You don't need a terminal diagnosis to understand urgency. Look at anyone
+                who stopped pushing and ask yourself how long it took before they stopped
+                being interesting.
+              </p>
+            </div>
+          </article>
+
+          <article class="entry">
+            <div class="entry-index">
+              <span class="entry-counter">05 / 05</span>
+              <span class="entry-date">Coming</span>
+            </div>
+            <div class="entry-body">
+              <h3 class="entry-title">Waffle is how you get rich</h3>
+              <p class="entry-copy" data-annotation="The patient man inherits everything the impatient man abandoned.">
+                Every market, every craft, every relationship rewards the person who showed
+                up longest. Not the smartest. Not the most talented. The one who was still
+                there when everyone else had moved on to something easier.
+              </p>
+            </div>
+          </article>
+
+        </div>
+      </div>
     </section>
 
     <!-- ─── THEORIA ─── -->
@@ -793,92 +414,6 @@
   </div>
 
   <script src="script.js?v=7"></script>
-
-  <script>
-    // ─── BOOKSHELF INTERACTIONS ───────────────────────────────────
-    (function () {
-      const scroll = document.getElementById('shelf-scroll');
-      const books  = document.querySelectorAll('#shelf-row .book');
-      let openBook = null;
-
-      // open / close on click
-      books.forEach(book => {
-        book.addEventListener('click', e => {
-          if (e.target.closest('.bcard-link')) return;
-          // don't fire if we were dragging
-          if (book._wasDragging) return;
-          const isOpen = book.classList.contains('b-open');
-          if (openBook && openBook !== book) openBook.classList.remove('b-open');
-          book.classList.toggle('b-open', !isOpen);
-          openBook = !isOpen ? book : null;
-        });
-      });
-
-      // close on outside click
-      document.addEventListener('click', e => {
-        if (openBook && !e.target.closest('#shelf-row .book')) {
-          openBook.classList.remove('b-open');
-          openBook = null;
-        }
-      });
-
-      // arrow buttons
-      document.getElementById('shelf-next').addEventListener('click', () => {
-        scroll.scrollBy({ left: 240, behavior: 'smooth' });
-      });
-      document.getElementById('shelf-prev').addEventListener('click', () => {
-        scroll.scrollBy({ left: -240, behavior: 'smooth' });
-      });
-
-      // drag to scroll (mouse)
-      let isDown = false, startX, startLeft, didDrag = false;
-      scroll.addEventListener('mousedown', e => {
-        isDown = true; didDrag = false;
-        scroll.classList.add('is-grabbing');
-        startX    = e.pageX - scroll.offsetLeft;
-        startLeft = scroll.scrollLeft;
-        books.forEach(b => b._wasDragging = false);
-      });
-      document.addEventListener('mouseup', () => {
-        isDown = false;
-        scroll.classList.remove('is-grabbing');
-      });
-      scroll.addEventListener('mousemove', e => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - scroll.offsetLeft;
-        const delta = x - startX;
-        if (Math.abs(delta) > 4) {
-          didDrag = true;
-          books.forEach(b => b._wasDragging = true);
-        }
-        scroll.scrollLeft = startLeft - delta;
-      });
-
-      // touch
-      let tStartX, tStartLeft;
-      scroll.addEventListener('touchstart', e => {
-        tStartX    = e.touches[0].pageX;
-        tStartLeft = scroll.scrollLeft;
-        books.forEach(b => b._wasDragging = false);
-      }, { passive: true });
-      scroll.addEventListener('touchmove', e => {
-        const dx = tStartX - e.touches[0].pageX;
-        if (Math.abs(dx) > 4) books.forEach(b => b._wasDragging = true);
-        scroll.scrollLeft = tStartLeft + dx;
-      }, { passive: true });
-
-      // cursor hover on books
-      books.forEach(b => {
-        b.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-        b.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-      });
-      document.querySelectorAll('.shelf-btn').forEach(b => {
-        b.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-        b.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-      });
-    })();
-  </script>
 
 </body>
 </html>
