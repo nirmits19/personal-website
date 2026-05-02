@@ -311,6 +311,11 @@ a { color: inherit; text-decoration: none; }
   height: 100%;
   z-index: 0;
 }
+/* Hide Unicorn Studio watermark */
+.hero-scene a[href*="unicorn"],
+.hero-scene [class*="unicorn-badge"],
+.hero-scene [id*="unicorn-badge"],
+#us-hero a { display: none !important; }
 
 /* Subtle vignette so frame + meta stay legible over any crop */
 .hero::after {

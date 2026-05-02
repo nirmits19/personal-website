@@ -57,8 +57,25 @@
 
   <!-- ─── Hero ─── -->
   <header class="hero">
-    <div class="hero-scene" data-us-project="foTNuERnL9JyqY8uEH9D" aria-hidden="true"></div>
-    <script>!function(){var u=window.UnicornStudio;if(u&&u.init){if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){u.init()})}else{u.init()}}else{window.UnicornStudio={isInitialized:!1};var i=document.createElement("script");i.src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.1.11/dist/unicornStudio.umd.js",i.onload=function(){if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){UnicornStudio.init()})}else{UnicornStudio.init()}},(document.head||document.body).appendChild(i)}}();</script>
+    <div id="us-hero" class="hero-scene" aria-hidden="true"></div>
+    <script>
+      (function () {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.1.11/dist/unicornStudio.umd.js';
+        s.onload = function () {
+          UnicornStudio.addScene({
+            elementId: 'us-hero',
+            projectId:  'foTNuERnL9JyqY8uEH9D',
+            scale:      1,
+            dpi:        window.devicePixelRatio || 1,
+            fps:        60,
+            lazyLoad:   false,
+            production: true,
+          });
+        };
+        (document.head || document.body).appendChild(s);
+      })();
+    </script>
     <div class="hero-clock-group">
       <div class="hero-clock" id="hero-clock">00:00:00</div>
       <div class="hero-sunset" id="sunset-countdown">&nbsp;</div>
