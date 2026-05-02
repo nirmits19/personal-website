@@ -316,7 +316,7 @@ a { color: inherit; text-decoration: none; }
 .hero-scene [class*="unicorn-badge"],
 .hero-scene [id*="unicorn-badge"],
 #us-hero a,
-#us-bottom a { display: none !important; }
+.bottom-scene a { display: none !important; }
 
 /* ─── Bottom scene ───────────────────────────────────────────── */
 .bottom-scene {
