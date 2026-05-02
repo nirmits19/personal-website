@@ -741,11 +741,11 @@ body::after {
 /* ─── Hero clock word-by-word entrance ───────────────────────── */
 .hero-clock-group {
   opacity: 0;
-  transform: translateY(12px);
-  animation: fadeUpIn 1.2s 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+  animation: clockFadeUp 1.2s 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
 }
-@keyframes fadeUpIn {
-  to { opacity: 1; transform: translateY(0); }
+@keyframes clockFadeUp {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
 }
 
 /* ─── Footer availability pill ───────────────────────────────── */
