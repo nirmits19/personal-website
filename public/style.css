@@ -639,33 +639,6 @@ body::after {
   80% { background-position:  16px  48px; }
 }
 
-/* ─── Custom Cursor ─────────────────────────────────────────── */
-body { cursor: none; }
-a, button, .entry, .frame-nav-item { cursor: none; }
-
-#cursor-dot {
-  position: fixed; top: 0; left: 0; z-index: 9999;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--ink);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  transition: width 0.2s, height 0.2s, background 0.2s;
-}
-#cursor-ring {
-  position: fixed; top: 0; left: 0; z-index: 9998;
-  width: 30px; height: 30px; border-radius: 50%;
-  border: 1px solid rgba(10,10,10,0.3);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  transition: width 0.25s, height 0.25s, border-color 0.25s;
-}
-/* Over the dark hero, invert cursor to cream */
-body.cursor-on-dark #cursor-dot  { background: rgba(245,243,238,0.95); }
-body.cursor-on-dark #cursor-ring { border-color: rgba(245,243,238,0.4); }
-/* Hover state — expand ring */
-body.cursor-hover #cursor-dot  { width: 9px; height: 9px; }
-body.cursor-hover #cursor-ring { width: 48px; height: 48px; border-color: rgba(10,10,10,0.5); }
-body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0.5); }
 
 /* ─── Marquee ────────────────────────────────────────────────── */
 .marquee-wrap {
@@ -776,71 +749,6 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
   background: #5c9e6e;
 }
 
-/* ─── Floating Dock ──────────────────────────────────────────── */
-.dock {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(60px);
-  display: flex;
-  gap: 6px;
-  z-index: 200;
-  opacity: 0;
-  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
-  pointer-events: none;
-}
-.dock.dock-visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  pointer-events: auto;
-}
-.dock-btn {
-  position: relative;
-  background: #8b1a1a;
-  border: none;
-  color: rgba(245,243,238,0.9);
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  cursor: none;
-  min-width: 110px;
-  transition: background 0.2s;
-}
-.dock-btn:hover { background: #a01e1e; }
-.dock-btn-label {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-}
-.dock-btn-icon { color: rgba(245,243,238,0.55); flex-shrink: 0; transform: scale(0.75); }
-/* Corner dots — like the reference */
-.dock-corner {
-  position: absolute;
-  width: 3px; height: 3px;
-  border-radius: 50%;
-  background: rgba(245,243,238,0.35);
-}
-.dock-corner.tl { top: 3px; left: 3px; }
-.dock-corner.tr { top: 3px; right: 3px; }
-.dock-corner.bl { bottom: 3px; left: 3px; }
-.dock-corner.br { bottom: 3px; right: 3px; }
-
-/* Animated bars when sound is playing */
-.dock-btn.sound-playing .bar {
-  animation: barBounce 0.5s ease infinite alternate;
-  transform-origin: bottom;
-}
-.bar.b1 { animation-delay: 0s; }
-.bar.b2 { animation-delay: 0.1s; }
-.bar.b3 { animation-delay: 0.05s; }
-.bar.b4 { animation-delay: 0.15s; }
-@keyframes barBounce {
-  from { transform: scaleY(0.4); }
-  to   { transform: scaleY(1.2); }
-}
 
 /* ─── Directory Overlay ──────────────────────────────────────── */
 .dir-overlay {
@@ -856,7 +764,7 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
   position: absolute; top: 32px; right: 40px;
   background: none; border: none;
   color: rgba(245,243,238,0.5);
-  font-size: 1.2rem; cursor: none;
+  font-size: 1.2rem; cursor: pointer;
   transition: color 0.2s;
 }
 .dir-close:hover { color: rgba(245,243,238,0.9); }
@@ -872,7 +780,7 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
   color: rgba(245,243,238,0.9);
   display: flex; flex-direction: column; gap: 4px;
   transition: background 0.2s;
-  cursor: none;
+  cursor: pointer;
   min-height: 105px;
 }
 .dir-cell:hover { background: #a01e1e; }
@@ -907,7 +815,7 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
   letter-spacing: 0.12em;
   text-transform: uppercase;
   transition: color 0.2s, gap 0.25s;
-  cursor: none;
+  cursor: pointer;
 }
 .section-next-bar:hover { color: var(--ink); gap: 1rem; }
 .section-next-box {
@@ -999,7 +907,7 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
   background: none; border: none; padding: 0;
   display: flex; flex-direction: column; gap: 0.25rem;
   align-items: flex-start;
-  cursor: none;
+  cursor: pointer;
   color: inherit;
   transition: opacity 0.2s;
 }
@@ -1108,7 +1016,7 @@ body.cursor-on-dark.cursor-hover #cursor-ring { border-color: rgba(245,243,238,0
   max-height: 200px;
   opacity: 1;
 }
-.entry[data-expandable] { cursor: none; }
+.entry[data-expandable] { cursor: pointer; }
 .entry[data-expandable] .entry-title::after {
   content: ' +';
   font-size: 0.7em;
@@ -1196,7 +1104,7 @@ section.visible,
               box-shadow 0.35s cubic-bezier(0.16,1,0.3,1),
               border-color 0.25s ease;
 }
-a.essay-card { cursor: none; }
+a.essay-card { cursor: pointer; }
 a.essay-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 18px 40px -20px rgba(10,10,10,0.18);
@@ -1368,11 +1276,6 @@ a.essay-card:hover .essay-card-link { gap: 0.85rem; }
   }
   .dir-cell .dir-name { margin-top: 0; }
 
-  /* Dock: tighter on phone */
-  .dock { bottom: 14px; gap: 5px; }
-  .dock-btn { min-width: 96px; padding: 7px 12px; }
-  .dock-btn-label { font-size: 0.68rem; }
-
   /* Nav: tighter still on the smallest screens */
   .frame-nav { gap: 0.9rem; }
   .frame-nav-label { font-size: 0.75rem; }
@@ -1386,9 +1289,6 @@ a.essay-card:hover .essay-card-link { gap: 0.85rem; }
 
 /* ─── Touch / hover-none devices (phones + tablets) ──────────── */
 @media (hover: none) {
-  /* Custom cursor is pointer-only — hiding saves JS rAF overhead too */
-  #cursor-dot, #cursor-ring { display: none; }
-  body, a, button, .entry, .frame-nav-item { cursor: auto; }
 
   /* Grain animation = 2 repaints/s on a fixed full-screen element.
      Combined with scroll compositing on mobile this is a major jank source. */

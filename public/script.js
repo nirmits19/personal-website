@@ -306,56 +306,6 @@
   requestAnimationFrame(frame);
 })();
 
-// ─── Custom Cursor ────────────────────────────────────────────
-(function () {
-  const dot  = document.getElementById('cursor-dot');
-  const ring = document.getElementById('cursor-ring');
-  if (!dot || !ring) return;
-  // No custom cursor on touch devices — it just adds overhead
-  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
-
-  let mx = 0, my = 0, rx = 0, ry = 0, moved = false;
-  const hero = document.querySelector('.hero');
-
-  // Decide whether the cursor's tip is currently over the dark hero area.
-  // Previously this was tied to whether the hero *intersected* the viewport,
-  // which meant the cursor stayed cream-on-cream after the hero began
-  // scrolling off — invisible over Episteme. Now we check the pointer's
-  // own Y against the hero's bottom edge.
-  function updateDark() {
-    if (!hero) return;
-    const bottom = hero.getBoundingClientRect().bottom;
-    document.body.classList.toggle('cursor-on-dark', my < bottom);
-  }
-
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    if (!moved) { rx = mx; ry = my; moved = true; }
-    updateDark();
-  });
-  window.addEventListener('scroll', updateDark, { passive: true });
-
-  (function animCursor() {
-    rx += (mx - rx) * 0.18;
-    ry += (my - ry) * 0.18;
-    dot.style.transform  = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
-    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
-    requestAnimationFrame(animCursor);
-  })();
-
-  // Hover state — delegated so we don't attach hundreds of listeners.
-  const hoverSel = 'a, button, .entry, .frame-nav-item, .dock-btn, .dir-cell';
-  document.addEventListener('mouseover', e => {
-    if (e.target.closest(hoverSel)) document.body.classList.add('cursor-hover');
-  });
-  document.addEventListener('mouseout', e => {
-    if (e.target.closest(hoverSel)) document.body.classList.remove('cursor-hover');
-  });
-
-  // Set initial state
-  document.body.classList.add('cursor-on-dark');
-})();
-
 // ─── Marquee ──────────────────────────────────────────────────
 (function () {
   const track = document.getElementById('marquee-track');
@@ -401,7 +351,6 @@
 (function () {
   const frame    = document.getElementById('frame');
   const hero     = document.querySelector('.hero');
-  const dock     = document.getElementById('dock');
   const logoMark = document.getElementById('logo-mark');
   const progEpi  = document.getElementById('prog-episteme');
   const progThe  = document.getElementById('prog-theoria');
@@ -451,9 +400,6 @@
         frame.classList.remove('at-top', 'scrolled');
       }
     }
-
-    // Dock visibility
-    if (dock) dock.classList.toggle('dock-visible', hB < 0);
 
     // Logo colour — white over the dark hero, black over light content
     if (logoMark) logoMark.classList.toggle('logo-dark', hB < hH * 0.15);
@@ -782,8 +728,6 @@ window.__glScrollTarget = window.__glScrollTarget || 0;
   }, { threshold: 0.5 });
   obs.observe(el);
 })();
-
-// (Floating dock visibility handled by the unified scroll dispatcher above.)
 
 // ─── Directory Overlay ────────────────────────────────────────
 (function () {
