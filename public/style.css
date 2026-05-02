@@ -304,22 +304,13 @@ a { color: inherit; text-decoration: none; }
   background: #0a0505;
 }
 
-.hero-image {
+.hero-scene {
   position: absolute;
   inset: 0;
-}
-
-.hero-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  transform: scale(1.06);
-  transform-origin: 52% 48%;
+  z-index: 0;
 }
-/* Ken Burns removed — a continuously-animating transform on a 1.6 MB
-   image keeps the GPU busy indefinitely. Static scale keeps the crop. */
 
 /* Subtle vignette so frame + meta stay legible over any crop */
 .hero::after {
@@ -614,16 +605,7 @@ footer {
 }
 
 /* ─── WebGL Hero Canvas ──────────────────────────────────────── */
-#hero-gl {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: 0.55;
-}
+/* #hero-gl removed — replaced by Unicorn Studio scene (.hero-scene) */
 
 /* ─── Film grain overlay (full page) ────────────────────────── */
 body::after {
