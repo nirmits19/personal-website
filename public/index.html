@@ -350,6 +350,27 @@
 
   </main>
 
+  <!-- ─── Bottom Scene ─── -->
+  <div id="us-bottom" class="bottom-scene" aria-hidden="true"></div>
+  <script>
+    (function () {
+      var t = setInterval(function () {
+        if (window.UnicornStudio && window.UnicornStudio.addScene) {
+          clearInterval(t);
+          UnicornStudio.addScene({
+            elementId: 'us-bottom',
+            projectId:  'KhRiIofPO4vW4UI1txVa',
+            scale:      1,
+            dpi:        window.devicePixelRatio || 1,
+            fps:        60,
+            lazyLoad:   true,
+            production: true,
+          });
+        }
+      }, 100);
+    })();
+  </script>
+
   <!-- ─── Footer ─── -->
   <footer>
     <div class="footer-grid">

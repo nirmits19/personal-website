@@ -315,7 +315,14 @@ a { color: inherit; text-decoration: none; }
 .hero-scene a[href*="unicorn"],
 .hero-scene [class*="unicorn-badge"],
 .hero-scene [id*="unicorn-badge"],
-#us-hero a { display: none !important; }
+#us-hero a,
+#us-bottom a { display: none !important; }
+
+/* ─── Bottom scene ───────────────────────────────────────────── */
+.bottom-scene {
+  width: 100%;
+  height: clamp(300px, 50vh, 560px);
+}
 
 /* Subtle vignette so frame + meta stay legible over any crop */
 .hero::after {
