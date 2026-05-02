@@ -150,8 +150,6 @@
 (function () {
   const canvas = document.getElementById('hero-gl');
   if (!canvas) return;
-  const heroImage = document.querySelector('.hero-image img');
-  const heroShell = document.querySelector('.hero');
   const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
   if (!gl) { canvas.style.display = 'none'; return; }
 
@@ -166,8 +164,6 @@
     uniform float u_scroll;
     uniform vec2  u_res;
     uniform vec2  u_mouse;
-    uniform vec2  u_texRes;
-    uniform sampler2D u_tex;
 
     vec2 hash2(vec2 p) {
       p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -195,18 +191,10 @@
       vec2 uv = gl_FragCoord.xy / u_res;
       uv.y = 1.0 - uv.y;
       float t = u_time * 0.07;
-      float transition = smoothstep(0.16, 0.96, u_scroll);
 
-      vec2 coverUv = uv;
-      float canvasAspect = u_res.x / max(u_res.y, 1.0);
-      float texAspect = u_texRes.x / max(u_texRes.y, 1.0);
-      if (canvasAspect > texAspect) {
-        float scale = texAspect / canvasAspect;
-        coverUv.y = ((coverUv.y - 0.5) * scale) + 0.5;
-      } else {
-        float scale = canvasAspect / texAspect;
-        coverUv.x = ((coverUv.x - 0.5) * scale) + 0.5;
-      }
+      // Scroll distortion — warp increases as hero leaves viewport
+      uv.x += u_scroll * 0.12 * sin(uv.y * 3.14159);
+      uv.y += u_scroll * 0.08;
 
       // Mouse influence (normalised 0-1)
       vec2 m = u_mouse / u_res;
@@ -219,23 +207,10 @@
                     fbm(uv * 2.0 + q + vec2(8.3, 2.8) + 0.13 * t));
 
       float f = fbm(uv * 2.5 + r);
-      float grain = fbm(coverUv * 10.0 + vec2(t * 0.7, -t * 0.25));
 
       // Mouse warmth — cursor leaves a warm bloom
       float md = length(uv - m);
       f += 0.18 * exp(-md * 4.5);
-
-      float upperMask = smoothstep(1.2, 0.12, coverUv.y);
-      float edgeMask = smoothstep(0.0, 0.22, coverUv.x) * smoothstep(0.0, 0.22, 1.0 - coverUv.x);
-      float streakNoise = smoothstep(0.28, 0.92, fbm(vec2(coverUv.x * 7.0, coverUv.y * 19.0 - t * 0.45)));
-      float smear = transition * transition * upperMask * streakNoise;
-
-      vec2 smearUv = coverUv;
-      smearUv.x += transition * 0.055 * sin((coverUv.y * 14.0) + (f * 4.0));
-      smearUv.y -= smear * 0.34;
-      smearUv.y += transition * 0.055;
-
-      vec4 portrait = texture2D(u_tex, clamp(smearUv, 0.0, 1.0));
 
       // Edge vignette darkening
       float vig = 1.0 - smoothstep(0.3, 1.2, length(uv - 0.5) * 1.6);
@@ -247,22 +222,9 @@
       vec3 c2 = vec3(0.38, 0.22, 0.08);
       vec3 col = mix(c0, c1, smoothstep(0.0, 0.5, f));
       col      = mix(col, c2, smoothstep(0.4, 0.9, f));
-      vec3 page = vec3(0.96, 0.95, 0.92);
-      vec3 heatedPortrait = portrait.rgb;
-      heatedPortrait += vec3(0.12, 0.04, 0.01) * smear;
-      heatedPortrait *= 1.0 + (transition * 0.08);
 
-      float dissolve = smoothstep(0.54, 1.0, transition + ((grain - 0.5) * 0.62) + (upperMask * 0.22));
-      float portraitAlpha = portrait.a * (1.0 - dissolve) * edgeMask;
-      vec3 mixedPortrait = mix(page, heatedPortrait, portraitAlpha);
-
-      float overlayAlpha = mix(0.55, 0.82, transition) * smoothstep(0.0, 0.3, f);
-      vec3 finalColor = mix(mixedPortrait, col, overlayAlpha * (0.7 + (transition * 0.4)));
-
-      float fadeToPage = smoothstep(0.82, 1.0, transition + upperMask * 0.10 + (grain * 0.05));
-      finalColor = mix(finalColor, page, fadeToPage * 0.92);
-
-      gl_FragColor = vec4(finalColor, 1.0);
+      float alpha = smoothstep(0.0, 0.3, f) * 0.72;
+      gl_FragColor = vec4(col, alpha);
     }
   `;
 
@@ -291,35 +253,6 @@
   const uRes   = gl.getUniformLocation(prog, 'u_res');
   const uMouse = gl.getUniformLocation(prog, 'u_mouse');
   const uScroll = gl.getUniformLocation(prog, 'u_scroll');
-  const uTexRes = gl.getUniformLocation(prog, 'u_texRes');
-  const uTex = gl.getUniformLocation(prog, 'u_tex');
-
-  const texture = gl.createTexture();
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([10, 5, 5, 255]));
-
-  let texWidth = 1;
-  let texHeight = 1;
-  let textureReady = false;
-  function uploadHeroTexture() {
-    if (!heroImage || !heroImage.complete || !heroImage.naturalWidth) return;
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, heroImage);
-    texWidth = heroImage.naturalWidth;
-    texHeight = heroImage.naturalHeight;
-    textureReady = true;
-  }
-  if (heroImage) {
-    if (heroImage.complete && heroImage.naturalWidth) uploadHeroTexture();
-    else heroImage.addEventListener('load', uploadHeroTexture, { once: true });
-  }
 
   let mx = 0, my = 0, glScroll = 0;
   document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
@@ -357,23 +290,14 @@
     if (!start) start = ts;
     const t = (ts - start) / 1000;
     glScroll += ((window.__glScrollTarget || 0) - glScroll) * 0.08;
-    if (heroShell) {
-      heroShell.style.setProperty('--hero-transition', glScroll.toFixed(4));
-      heroShell.style.setProperty('--hero-shift-y', `${(glScroll * -42).toFixed(2)}px`);
-    }
     gl.uniform1f(uTime, t);
     gl.uniform1f(uScroll, glScroll);
     gl.uniform2f(uRes, canvas.width, canvas.height);
     gl.uniform2f(uMouse, mx * RENDER_SCALE, my * RENDER_SCALE);
-    gl.uniform2f(uTexRes, texWidth, texHeight);
-    gl.uniform1i(uTex, 0);
-    if (textureReady) {
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-    }
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.disable(gl.BLEND);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     drawnFrames++;
     // Signal loader that the shader is warm (compiled + pipeline primed).
