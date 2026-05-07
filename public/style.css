@@ -1146,6 +1146,23 @@ a.essay-card:hover {
 a.essay-card:hover .essay-card-img img {
   transform: scale(1.04);
 }
+
+.essay-card-img--grid {
+  background-image: url('essays/episteme-grid.png');
+  background-size: 300% 200%;
+  background-repeat: no-repeat;
+  transition: filter 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+a.essay-card:hover .essay-card-img--grid {
+  filter: brightness(1.05) saturate(1.05);
+}
+.essay-card-img--grid-1 { background-position: left top; }
+.essay-card-img--grid-2 { background-position: center top; }
+.essay-card-img--grid-3 { background-position: right top; }
+.essay-card-img--grid-4 { background-position: left bottom; }
+.essay-card-img--grid-5 { background-position: center bottom; }
+.essay-card-img--grid-6 { background-position: right bottom; }
+
 .essay-card-img--placeholder {
   background:
     repeating-linear-gradient(
