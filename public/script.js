@@ -23,6 +23,14 @@
   const loader = document.getElementById('loader');
   if (!loader) return;
 
+  // Skip the loader on return visits within the same session.
+  if (sessionStorage.getItem('loaderSeen')) {
+    loader.remove();
+    const logoMark = document.getElementById('logo-mark');
+    if (logoMark) { logoMark.classList.add('logo-visible', 'logo-settled'); }
+    return;
+  }
+
   document.documentElement.classList.add('loading-active');
   document.body && document.body.classList.add('loading-active');
 
@@ -123,6 +131,7 @@
         }));
       }
 
+      sessionStorage.setItem('loaderSeen', '1');
       // Give the fade + first unhindered frames a beat before removing.
       setTimeout(() => loader.remove(), 700);
     }, wait);
