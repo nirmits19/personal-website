@@ -125,6 +125,18 @@ body::after {
   justify-content: center;
 }
 
+.article-cover--grid {
+  background-image: url('episteme-grid.png');
+  background-size: 300% 200%;
+  background-repeat: no-repeat;
+}
+.article-cover--grid-1 { background-position: left top; }
+.article-cover--grid-2 { background-position: center top; }
+.article-cover--grid-3 { background-position: right top; }
+.article-cover--grid-4 { background-position: left bottom; }
+.article-cover--grid-5 { background-position: center bottom; }
+.article-cover--grid-6 { background-position: right bottom; }
+
 .article-cover-label {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 0.68rem;
