@@ -18,6 +18,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -154,6 +155,66 @@ body::after {
   border: none;
   border-top: 1px solid var(--rule);
   margin-bottom: 2.8rem;
+}
+
+/* ─── Section headings ──────────────────────────────────────── */
+.article-body h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-top: 2.8rem;
+  margin-bottom: 1.2rem;
+  scroll-margin-top: 6rem;
+}
+
+/* ─── Table of Contents ─────────────────────────────────────── */
+.article-toc {
+  display: none;
+  position: fixed;
+  top: 6rem;
+  right: clamp(1.5rem, 3vw, 3rem);
+  width: 148px;
+  z-index: 10;
+}
+
+@media (min-width: 1140px) {
+  .article-toc { display: block; }
+}
+
+.article-toc-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.75rem;
+}
+
+.article-toc-list {
+  list-style: none;
+  border-left: 1px solid var(--rule-soft);
+  padding-left: 0.9rem;
+}
+
+.article-toc-list li {
+  margin-bottom: 0.55rem;
+}
+
+.article-toc-list a {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  display: block;
+  transition: color 0.2s ease;
+}
+
+.article-toc-list a:hover,
+.article-toc-list a.active {
+  color: var(--ink);
 }
 
 /* ─── Body Prose ────────────────────────────────────────────── */
