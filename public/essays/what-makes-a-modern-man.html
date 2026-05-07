@@ -21,6 +21,17 @@
     </div>
   </header>
 
+  <!-- ─── Table of Contents ───────────────────────────────── -->
+  <aside class="article-toc">
+    <p class="article-toc-label">Contents</p>
+    <ol class="article-toc-list">
+      <li><a href="#take-risks">Take Risks</a></li>
+      <li><a href="#be-dumb">Be Dumb</a></li>
+      <li><a href="#walk">Walk</a></li>
+      <li><a href="#the-bigger-picture">The Bigger Picture</a></li>
+    </ol>
+  </aside>
+
   <!-- ─── Article ──────────────────────────────────────────── -->
   <main class="article-main">
     <div class="article-wrap">
@@ -57,7 +68,7 @@
           makes a modern man.
         </p>
 
-        <h2>1. Take Risks</h2>
+        <h2 id="take-risks">1. Take Risks</h2>
 
         <p>
           To be alive is to choose. And every choice you make is a quiet act of risk,
@@ -89,7 +100,7 @@
           understands that fear is not a reason to stop. It is a sign that something matters.
         </p>
 
-        <h2>2. Be Dumb</h2>
+        <h2 id="be-dumb">2. Be Dumb</h2>
 
         <p>
           Do not think too much. Just move at the pace you can and you will be amazed where
@@ -122,7 +133,7 @@
           make it better. Doing it will.
         </p>
 
-        <h2>3. Walk</h2>
+        <h2 id="walk">3. Walk</h2>
 
         <p>
           Run for your health and your mind, but also walk. Take in your surroundings. See
@@ -152,7 +163,7 @@
           to your own footsteps is its own kind of return.
         </p>
 
-        <h2>The Bigger Picture</h2>
+        <h2 id="the-bigger-picture">The Bigger Picture</h2>
 
         <p>
           As Steve Jobs once said, everything around you was created by someone no smarter
@@ -187,5 +198,18 @@
     </div>
   </footer>
 
+  <script>
+    const headings = document.querySelectorAll('.article-body h2[id]');
+    const links    = document.querySelectorAll('.article-toc-list a');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const link = document.querySelector(`.article-toc-list a[href="#${entry.target.id}"]`);
+        if (link) link.classList.toggle('active', entry.isIntersecting);
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+
+    headings.forEach(h => observer.observe(h));
+  </script>
 </body>
 </html>
