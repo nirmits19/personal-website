@@ -1332,21 +1332,22 @@ a.essay-card:hover .essay-card-link { gap: 0.85rem; }
 
 
 /* ─── Theoria Bookcase Carousel ──────────────────────────────── */
-.bookcase { max-width: 920px; display: flex; flex-direction: column; }
+.bookcase { max-width: none; width: 100%; display: flex; flex-direction: column; }
 .shelf {
-  display: flex; align-items: flex-end; gap: 10px;
+  display: flex; align-items: flex-end; gap: clamp(10px, 1.4vw, 22px);
   height: 296px; padding: 0 6px;
   overflow-x: auto; overflow-y: hidden;
 }
 .book {
   position: relative; height: 264px;
-  width: 56px; min-width: 56px; flex-shrink: 0;
+  width: 56px; min-width: 56px; flex: 1 1 56px;
   background: var(--book-bg, #1a1a1a); color: var(--book-fg, #f5f3ee);
   border: 1px solid rgba(10,10,10,0.25);
   box-shadow: inset -6px 0 12px -8px rgba(0,0,0,0.35);
   overflow: hidden; cursor: pointer;
   transition: width 0.55s cubic-bezier(0.16,1,0.3,1),
               min-width 0.55s cubic-bezier(0.16,1,0.3,1),
+              flex-grow 0.55s cubic-bezier(0.16,1,0.3,1),
               transform 0.3s ease;
 }
 .book:hover { transform: translateY(-8px); }
@@ -1370,7 +1371,7 @@ a.essay-card:hover .essay-card-link { gap: 0.85rem; }
   opacity: 0; pointer-events: none;
   transition: opacity 0.3s ease 0.15s;
 }
-.book.book-open { width: 240px; min-width: 240px; }
+.book.book-open { width: 240px; min-width: 240px; flex: 2.2 1 240px; }
 .book.book-open .book-spine { display: none; }
 .book.book-open .book-cover { opacity: 1; pointer-events: auto; }
 .book-status { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.55; }
