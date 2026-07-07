@@ -884,3 +884,39 @@ window.__glScrollTarget = window.__glScrollTarget || 0;
     if (on) start(); else stop();
   };
 })();
+
+
+// ─── Theoria Bookcase Carousel ────────────────────────────────
+(function () {
+  const shelf = document.getElementById('shelf');
+  if (!shelf) return;
+  const books = [...shelf.querySelectorAll('.book')];
+  const counter = document.getElementById('shelf-counter');
+  const meta = document.getElementById('shelf-meta');
+  const pad = n => String(n).padStart(2, '0');
+  let sel = books.findIndex(b => b.classList.contains('book-open'));
+  if (sel < 0) sel = 0;
+
+  function apply() {
+    books.forEach((b, i) => b.classList.toggle('book-open', i === sel));
+    if (counter) counter.textContent = pad(sel + 1) + ' / ' + pad(books.length);
+    if (meta) {
+      const pct = parseFloat(books[sel].dataset.progress || '100');
+      meta.textContent = pct < 100 ? 'In progress — ' + pct + '%' : 'Finished';
+    }
+    // keep the open book in view when the shelf overflows
+    if (shelf.scrollWidth > shelf.clientWidth) {
+      shelf.scrollTo({ left: Math.max(books[sel].offsetLeft - 60, 0), behavior: 'smooth' });
+    }
+  }
+
+  books.forEach((b, i) => {
+    b.addEventListener('click', () => { sel = i; apply(); });
+    b.addEventListener('mouseenter', () => { if (i !== sel) { sel = i; apply(); } });
+  });
+  const prev = document.getElementById('shelf-prev');
+  const next = document.getElementById('shelf-next');
+  if (prev) prev.addEventListener('click', () => { sel = (sel - 1 + books.length) % books.length; apply(); });
+  if (next) next.addEventListener('click', () => { sel = (sel + 1) % books.length; apply(); });
+  apply();
+})();
