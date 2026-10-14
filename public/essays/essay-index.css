@@ -1,0 +1,70 @@
+/* ─── WordPress essays (/essay, /essay/:slug) ───────────────────
+   The list page loads the home page's style.css and reuses its
+   section, card, frame and footer classes as-is; the detail page
+   loads article.css like the hand-written essays. This file only
+   adds the few pieces neither of them has. */
+
+/* List page: there is no hero, so the frame is solid from the start
+   and the section clears it. */
+.essay-page main { padding-top: var(--nav-offset); }
+.essay-page .section { border-bottom: none; }
+.essay-page .logo-mark { pointer-events: auto; }
+
+.essay-card-author,
+.article-byline {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin: 0;
+}
+.article-byline { margin: -1rem 0 2rem; }
+
+.essay-card-img--placeholder::after { content: 'Essay'; }
+
+.essay-empty { color: var(--ink-mute); }
+
+/* ─── Pagination ────────────────────────────────────────────── */
+.essay-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.essay-pager-link { border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
+.essay-pager-count { color: var(--ink-soft); }
+
+/* ─── WordPress post content inside .article-body ───────────── */
+.article-body h3 { font-size: 1.05rem; font-weight: 700; margin: 2.2rem 0 1rem; }
+.article-body a { border-bottom: 1px solid var(--ink-soft); }
+.article-body a:hover { border-bottom-color: var(--ink); }
+.article-body ul,
+.article-body ol { margin: 0 0 1.6em 1.4em; }
+.article-body li { margin-bottom: 0.4em; }
+.article-body blockquote {
+  border-left: 2px solid var(--ink);
+  padding-left: 1.2rem;
+  margin: 0 0 1.6em;
+  color: var(--ink-mute);
+}
+.article-body img { max-width: 100%; height: auto; display: block; }
+.article-body figure { margin: 0 0 1.6em; }
+.article-body figcaption {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-top: 0.6rem;
+}
+.article-body pre {
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.85rem;
+  background: #ece8df;
+  padding: 1rem;
+  margin: 0 0 1.6em;
+}

@@ -1250,6 +1250,24 @@ a.essay-card:hover .essay-card-link { gap: 0.85rem; }
 
 .essay-card--coming { opacity: 0.85; }
 
+/* "All essays" link under the Episteme grid → /essay (WordPress essays) */
+.essay-all-link {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--ink);
+  align-self: flex-start;
+  transition: gap 0.25s ease;
+}
+.essay-all-link::after { content: '→'; }
+.essay-all-link:hover { gap: 0.85rem; }
+
 /* ─── Responsive ───────────────────────────────────────────── */
 
 /* 860px — tablet and below */

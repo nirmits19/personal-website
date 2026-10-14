@@ -20,6 +20,13 @@
   },
   "homepage": "https://github.com/nirmits19/personal-website#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "dotenv": "16.4.5",
+    "express": "^5.2.1",
+    "sanitize-html": "2.18.0"
+  },
+  "overrides": {
+    "sanitize-html": {
+      "htmlparser2": "10.1.0"
+    }
   }
 }
