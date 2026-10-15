@@ -68,3 +68,59 @@
   padding: 1rem;
   margin: 0 0 1.6em;
 }
+
+/* ─── Section tabs and grouped list (/essay) ────────────────── */
+.essay-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 3vw, 2.2rem);
+  margin: 0 0 clamp(2rem, 5vh, 3rem);
+  border-bottom: 1px solid var(--rule-soft);
+}
+.essay-tab {
+  padding: 0 0 0.8rem;
+  margin-bottom: -1px;
+  border-bottom: 1px solid transparent;
+  color: var(--ink-mute);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.essay-tab span { opacity: 0.6; }
+.essay-tab:hover,
+.essay-tab.is-active { color: var(--ink); }
+.essay-tab.is-active { border-bottom-color: var(--ink); }
+
+.essay-group { margin: 0 0 clamp(3rem, 8vh, 5rem); }
+.essay-group-title {
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+  margin: 0 0 1.4rem;
+  font-weight: 500;
+  font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+}
+.essay-group-title span {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+.essay-group-more {
+  display: inline-block;
+  margin-top: 1.4rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid currentColor;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+@media (max-width: 560px) {
+  .essay-tabs { gap: 1rem; }
+}
