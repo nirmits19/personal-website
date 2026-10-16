@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Eudaimonias Project — In Memory of Nirmit</title>
+<meta name="description" content="The Eudaimonias Project. Nirmit lives through his words. An evening for Nirmit — Monday, 19 October 2026, London.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Theme tokens — taken from the Eudaimonia project (public/style.css) */
+  :root {
+    --background: #f5f3ee;        /* --bg */
+    --card: #ffffff;              /* --bg-raised */
+    --foreground: #0a0a0a;        /* --ink */
+    --muted-foreground: #6b6b6b;  /* --ink-mute */
+    --soft: #a8a8a8;              /* --ink-soft */
+    --border: #d8d5cd;            /* --rule-soft */
+    --ink: #0a0a0a;
+    --wine: #1a1a1a;              /* --rule */
+    --accent: #0a0a0a;            /* accent = ink (the site is monochrome) */
+    --paper: #ece8df;
+    --paper-ink: #1a1a1a;
+    --cream: #f5f3ee;
+    --shadow-panel: 0 16px 48px rgba(10,10,10,0.08);
+    --shadow-lift: 0 30px 80px rgba(0,0,0,0.35);
+
+    --serif: "Space Grotesk", system-ui, sans-serif;
+    --sans: "Space Grotesk", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --garamond: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --wrap: 1180px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body { background: var(--background); color: var(--foreground); font-family: var(--sans); font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 40px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted-foreground); }
+  .eyebrow b { color: var(--foreground); font-weight: 500; }
+  .serif { font-family: var(--serif); }
+  .accent { color: var(--accent); }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in oklch, var(--background) 82%, transparent);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid transparent; transition: border-color .3s;
+  }
+  header.scrolled { border-color: var(--border); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .brand { display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 500; letter-spacing: -.01em; }
+  .brand img { width: 44px; filter: brightness(0); }  /* logo.png is white — render black on light bg, as in the project */
+  .brand .dot { color: var(--accent); }
+  nav { display: flex; align-items: center; gap: 32px; font-family: var(--mono); font-size: 12px; }
+  nav a { color: var(--muted-foreground); transition: color .2s; }
+  nav a:hover { color: var(--foreground); }
+  nav .pill { color: var(--cream); background: var(--ink); padding: 9px 16px; border-radius: 99px; transition: background .2s; }
+  nav .pill:hover { background: #333; color: var(--cream); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 64px 0 0; }
+  .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 72px; align-items: end; }
+  .hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(64px, 8.4vw, 124px); line-height: .92; letter-spacing: -.03em; margin: 26px 0 30px; }
+  .hero h1 em { font-style: normal; color: var(--muted-foreground); }
+  .hero .sub { font-family: var(--serif); font-style: normal; font-size: 26px; color: var(--muted-foreground); line-height: 1.35; }
+  .dates { display: inline-flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 12px; letter-spacing: .14em; margin-top: 36px; }
+  .dates i { width: 40px; height: 1px; background: currentColor; }
+  .hero-ctas { display: flex; gap: 14px; margin-top: 44px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; padding: 14px 22px; border-radius: 99px; border: 1px solid var(--foreground); transition: all .25s; }
+  .btn svg { transition: transform .25s; }
+  .btn:hover svg { transform: translateX(3px); }
+  .btn.solid { background: var(--accent); border-color: var(--accent); color: var(--cream); }
+  .btn.solid:hover { background: #333; border-color: #333; }
+  .btn.ghost:hover { background: var(--foreground); color: var(--cream); }
+  .btn.light { border-color: color-mix(in oklch, var(--cream) 40%, transparent); color: var(--cream); }
+  .btn.light:hover { background: var(--cream); color: var(--ink); }
+  .btn[disabled] { opacity: .55; cursor: progress; }
+
+  /* Arched portrait — a nod to classical architecture */
+  .arch { position: relative; }
+  .arch .frame { border-radius: 999px 999px 6px 6px; overflow: hidden; aspect-ratio: 4 / 5.2; box-shadow: var(--shadow-panel); background: var(--ink); }
+  .arch .frame img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 30%; }
+  .arch .ring { position: absolute; inset: -14px; border: 1px solid var(--border); border-radius: 999px 999px 10px 10px; pointer-events: none; }
+  .arch .badge {
+    position: absolute; left: -38px; bottom: 54px; background: var(--card); box-shadow: var(--shadow-panel);
+    padding: 14px 18px; border-radius: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; line-height: 1.7;
+  }
+  .arch .badge b { display: block; font-weight: 700; }
+
+  /* Ribbon */
+  .ribbon { margin-top: 88px; background: var(--ink); color: var(--cream); overflow: hidden; white-space: nowrap; padding: 16px 0; }
+  .ribbon .track { display: inline-flex; gap: 48px; animation: slide 38s linear infinite; font-family: var(--serif); font-style: normal; font-size: 22px; }
+  .ribbon .track span::after { content: "✳"; font-style: normal; margin-left: 48px; color: var(--soft); }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* ---------- Intro ---------- */
+  .intro { padding: 120px 0; }
+  .intro-grid { display: grid; grid-template-columns: 260px 1fr; gap: 64px; }
+  .intro .lede { font-family: var(--serif); font-size: 34px; font-weight: 400; line-height: 1.32; letter-spacing: -.01em; }
+  .intro .lede em { font-style: normal; color: var(--muted-foreground); }
+  .intro .more { margin-top: 32px; columns: 2; column-gap: 40px; color: var(--muted-foreground); font-size: 16px; line-height: 1.8; }
+  .intro .more p { break-inside: avoid; margin-bottom: 16px; }
+
+  /* ---------- Section heads ---------- */
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; border-top: 1px solid var(--border); padding-top: 26px; margin-bottom: 56px; }
+  .head h2 { font-family: var(--serif); font-weight: 400; font-size: 56px; letter-spacing: -.02em; line-height: 1.02; margin-top: 12px; }
+  .head h2 em { font-style: normal; color: var(--muted-foreground); }
+  .head p { max-width: 360px; color: var(--muted-foreground); font-size: 15px; }
+
+  /* ---------- Journey ---------- */
+  .journey { padding-bottom: 40px; }
+  .chapter { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; padding: 48px 0; }
+  .chapter + .chapter { border-top: 1px solid var(--border); }
+  .chapter:nth-child(even) .visual { order: 2; }
+  .visual { position: relative; aspect-ratio: 1 / 1; border-radius: 6px; overflow: hidden; background: var(--ink); }
+  .visual img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s ease; }
+  .chapter:hover .visual img { transform: scale(1.04); }
+  .visual .no { position: absolute; top: 18px; left: 18px; font-family: var(--mono); font-size: 11px; color: var(--cream); background: oklch(15% 0 0 / .55); backdrop-filter: blur(6px); padding: 6px 10px; border-radius: 99px; }
+  .chapter .num { font-family: var(--serif); font-size: 80px; font-weight: 400; line-height: 1; color: var(--soft); }
+  .chapter h3 { font-family: var(--serif); font-weight: 400; font-size: 36px; letter-spacing: -.01em; margin: 10px 0 20px; line-height: 1.1; }
+  .chapter p { color: var(--muted-foreground); font-size: 16px; line-height: 1.85; }
+  .chapter .read { margin-top: 18px; font-family: var(--mono); font-size: 12px; color: var(--accent); cursor: pointer; background: none; border: 0; padding: 0; }
+  .chapter .rest { display: none; }
+  .chapter.open .rest { display: inline; }
+
+  /* ---------- Motto band ---------- */
+  .motto { background: var(--ink); color: var(--cream); text-align: center; padding: 120px 0; margin-top: 60px; position: relative; overflow: hidden; }
+  .motto img { position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); width: 120px; filter: brightness(0) invert(1); opacity: .5; }
+  .motto p { font-family: var(--serif); font-style: normal; font-weight: 400; font-size: clamp(42px, 5.6vw, 76px); line-height: 1.12; letter-spacing: -.02em; }
+  .motto p span { display: block; }
+  .motto p span:last-child { color: var(--soft); }
+
+  /* ---------- Moments ---------- */
+  .moments { padding: 120px 0 0; }
+  .gallery { columns: 3; column-gap: 16px; }
+  .gallery figure { break-inside: avoid; margin-bottom: 16px; position: relative; border-radius: 6px; overflow: hidden; cursor: zoom-in; background: var(--paper); }
+  .gallery img { width: 100%; height: auto; transition: transform 1s ease, filter .5s ease; filter: grayscale(.25); }
+  .gallery figure:hover img { transform: scale(1.03); filter: none; }
+  .gallery figcaption {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 16px 14px;
+    background: linear-gradient(transparent, rgba(10,10,10,.7)); color: var(--cream);
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em; opacity: 0; transform: translateY(6px); transition: all .35s;
+  }
+  .gallery figure:hover figcaption { opacity: 1; transform: none; }
+  .lightbox { border: 0; padding: 0; background: transparent; max-width: 92vw; max-height: 92vh; margin: auto; overflow: visible; }
+  .lightbox::backdrop { background: rgba(10,10,10,.88); backdrop-filter: blur(4px); }
+  .lightbox img { max-width: 92vw; max-height: 84vh; width: auto; height: auto; border-radius: 4px; }
+  .lightbox .lb-cap { color: var(--cream); font-family: var(--mono); font-size: 12px; text-align: center; margin-top: 14px; letter-spacing: .08em; }
+  .lightbox .lb-close { position: fixed; top: 20px; right: 28px; background: none; border: 0; color: var(--cream); font-size: 36px; line-height: 1; cursor: pointer; }
+
+  /* ---------- Evening ---------- */
+  .evening { padding: 130px 0 40px; }
+  .evening-grid { display: grid; grid-template-columns: 430px 1fr; gap: 80px; align-items: start; }
+  .invite { position: sticky; top: 100px; }
+  .invite a { display: block; border-radius: 4px; overflow: hidden; box-shadow: var(--shadow-lift); transform: rotate(-1.6deg); transition: transform .5s ease; background: var(--card); }
+  .invite a:hover { transform: rotate(0) translateY(-6px); }
+  .invite .cap { margin-top: 26px; text-align: center; font-family: var(--mono); font-size: 11px; color: var(--muted-foreground); letter-spacing: .12em; }
+  .event-title { font-family: var(--serif); font-weight: 400; font-size: 58px; line-height: 1; letter-spacing: -.02em; margin: 14px 0 10px; }
+  .event-sub { font-family: var(--serif); font-style: normal; font-size: 22px; color: var(--muted-foreground); }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); margin: 40px 0; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+  .facts div { padding: 20px 22px; }
+  .facts div + div { border-left: 1px solid var(--border); }
+  .facts small { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted-foreground); }
+  .facts strong { display: block; font-weight: 500; font-size: 16px; margin-top: 6px; line-height: 1.4; }
+  .facts span { display: block; font-size: 13px; color: var(--muted-foreground); }
+  .event-copy p { font-size: 16.5px; line-height: 1.85; margin-bottom: 16px; color: var(--paper-ink); }
+  .event-copy .groups { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 8px; }
+  .event-copy .groups span { font-family: var(--mono); font-size: 11px; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--border); background: var(--card); }
+
+  .timeline { margin-top: 56px; }
+  .timeline h4, .block h4 { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+  .timeline ol { list-style: none; border-left: 1px solid var(--border); margin-left: 6px; }
+  .timeline li { position: relative; display: grid; grid-template-columns: 76px 1fr; gap: 18px; padding: 14px 0 14px 26px; }
+  .timeline li::before { content: ""; position: absolute; left: -5px; top: 22px; width: 9px; height: 9px; border-radius: 50%; background: var(--background); border: 1.5px solid var(--accent); }
+  .timeline li.key::before { background: var(--accent); }
+  .timeline time { font-family: var(--mono); font-size: 13px; color: var(--muted-foreground); padding-top: 2px; }
+  .timeline b { font-weight: 500; display: block; }
+  .timeline span { font-size: 14px; color: var(--muted-foreground); }
+  .timeline .venue-break::before { display: none; }
+  .timeline .venue-break { padding: 6px 0 6px 26px; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted-foreground); }
+
+  .duo { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 56px; }
+  .block { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 30px; }
+  .block .big { font-family: var(--serif); font-size: 26px; line-height: 1.25; margin-bottom: 14px; }
+  .block p { font-size: 15px; line-height: 1.75; color: var(--muted-foreground); margin-bottom: 10px; }
+  .block .progress { height: 4px; background: var(--paper); border-radius: 99px; margin: 18px 0 8px; overflow: hidden; }
+  .block .progress i { display: block; height: 100%; width: 40%; background: var(--ink); }
+  .block .progress-label { font-family: var(--mono); font-size: 11px; color: var(--muted-foreground); }
+
+  .event-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 40px; }
+
+  /* ---------- Hands ---------- */
+  .hands { padding: 110px 0; }
+  .hands-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .hand { border: 1px solid var(--border); border-radius: 6px; padding: 24px 22px 26px; background: var(--card); transition: transform .25s, box-shadow .25s, border-color .25s; }
+  .hand:hover { transform: translateY(-4px); box-shadow: var(--shadow-panel); border-color: transparent; }
+  .hand .i { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .hand b { display: block; font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 18px 0 8px; line-height: 1.15; }
+  .hand p { font-size: 14px; line-height: 1.65; color: var(--muted-foreground); }
+
+  /* ---------- Practical notes & RSVP ---------- */
+  .notes { padding: 0 0 110px; }
+  .notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+  .notes .block ul { list-style: none; }
+  .notes .rules li { position: relative; padding: 14px 0 14px 26px; font-size: 16px; line-height: 1.6; color: var(--paper-ink); border-top: 1px solid var(--border); }
+  .notes .rules li:first-child { border-top: 0; padding-top: 4px; }
+  .notes .rules li::before { content: ""; position: absolute; left: 4px; top: 24px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+  .notes .rules li:first-child::before { top: 14px; }
+  .contacts { margin-top: 18px; border-top: 1px solid var(--border); }
+  .contacts li { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .contacts .who { font-weight: 500; font-size: 16px; }
+  .contacts .tel { grid-column: 1; font-family: var(--mono); font-size: 13px; color: var(--muted-foreground); }
+  .contacts .wa { grid-column: 2; grid-row: 1 / span 2; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--foreground); transition: all .25s; }
+  .contacts .wa:hover { background: var(--foreground); color: var(--cream); }
+  .contacts .mail { display: inline-block; margin-top: 16px; font-family: var(--mono); font-size: 13px; color: var(--foreground); border-bottom: 1px solid var(--foreground); }
+
+  /* ---------- Essays ---------- */
+  .essays { background: var(--paper); padding: 110px 0; }
+  .essay-list { list-style: none; border-top: 1px solid color-mix(in oklch, var(--paper-ink) 18%, transparent); counter-reset: e; }
+  .essay-list li { counter-increment: e; border-bottom: 1px solid color-mix(in oklch, var(--paper-ink) 18%, transparent); }
+  .essay-list a { display: grid; grid-template-columns: 70px 1fr auto; align-items: center; gap: 20px; padding: 24px 4px; transition: padding .3s, color .3s; }
+  .essay-list a::before { content: counter(e, decimal-leading-zero); font-family: var(--mono); font-size: 12px; color: var(--muted-foreground); }
+  .essay-list span { font-family: var(--serif); font-size: 30px; font-weight: 400; letter-spacing: -.01em; line-height: 1.2; }
+  .essay-list svg { color: var(--accent); opacity: 0; transform: translateX(-8px); transition: all .3s; }
+  .essay-list a:hover { padding-left: 16px; }
+  .essay-list a:hover svg { opacity: 1; transform: none; }
+
+  /* ---------- Forum ---------- */
+  .forum { padding: 120px 0 60px; }
+  .forum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .forum h2 { font-family: var(--serif); font-weight: 400; font-size: 56px; line-height: 1.02; letter-spacing: -.02em; margin: 14px 0 22px; }
+  .forum h2 em { font-style: normal; color: var(--muted-foreground); }
+  .forum .copy p { color: var(--muted-foreground); font-size: 16px; line-height: 1.85; margin-bottom: 16px; }
+  .kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .kind { display: block; border: 1px solid var(--border); border-radius: 6px; padding: 24px 22px; background: var(--card); cursor: pointer; transition: all .25s; text-align: left; font: inherit; color: inherit; }
+  .kind:hover, .kind.active { border-color: var(--accent); box-shadow: var(--shadow-panel); }
+  .kind:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .kind svg { color: var(--accent); margin-bottom: 26px; }
+  .kind b { display: block; font-weight: 500; font-size: 16px; }
+  .kind small { color: var(--muted-foreground); font-size: 13px; }
+  .compose { margin-top: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 24px; display: none; }
+  .compose.show { display: block; }
+  .compose label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-foreground); margin: 12px 0 6px; }
+  .compose input, .compose textarea { width: 100%; font: inherit; font-size: 15px; background: var(--background); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; color: var(--foreground); }
+  .compose textarea { min-height: 120px; resize: vertical; }
+  .compose input:focus, .compose textarea:focus { outline: none; border-color: var(--accent); }
+  .compose .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .compose button { margin-top: 18px; }
+  .compose .note { font-size: 12px; color: var(--muted-foreground); margin-top: 12px; min-height: 1em; }
+  .compose .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; } /* spam honeypot */
+  details.disclaimer { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 16px; }
+  details.disclaimer summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-foreground); }
+  details.disclaimer p { font-size: 13px; line-height: 1.7; color: var(--muted-foreground); margin-top: 12px; }
+
+  /* ---------- Memories of Nirmit (sticky notes) ---------- */
+  .memories { padding: 40px 0 20px; }
+  .memories[hidden] { display: none; }
+  .mem-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+  .mem-top h2 { font-family: var(--garamond); font-weight: 400; font-size: clamp(44px, 5.4vw, 68px); line-height: 1.05; letter-spacing: -.005em; }
+  .mem-top h2 em { font-style: italic; }
+  .mem-top p { margin-top: 10px; color: var(--muted-foreground); font-size: 16px; }
+  .mem-nav { display: flex; gap: 10px; }
+  .mem-nav[hidden] { display: none; }
+  .mem-nav button { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--foreground); background: transparent; color: var(--foreground); cursor: pointer; display: grid; place-items: center; transition: background .2s, color .2s, opacity .2s; }
+  .mem-nav button:hover:not(:disabled) { background: var(--foreground); color: var(--cream); }
+  .mem-nav button:disabled { opacity: .3; cursor: default; }
+  .mem-nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .mem-track {
+    --gap: 48px;
+    display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 2 * var(--gap)) / 3); gap: var(--gap);
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-inline: 16px;
+    padding: 56px 16px 64px; margin: 0 -16px; scrollbar-width: none;
+  }
+  .mem-track::-webkit-scrollbar { display: none; }
+  .sticky {
+    scroll-snap-align: start; position: relative; aspect-ratio: 1 / 1; background: var(--note, #ece4d4);
+    transform: rotate(var(--r, 0deg)); transition: transform .4s ease;
+    box-shadow: 0 18px 30px -12px rgba(70, 58, 30, .22), 0 2px 4px rgba(70, 58, 30, .06);
+    padding: 44px 30px 26px; display: flex; flex-direction: column;
+  }
+  .sticky::before { /* the tape */
+    content: ""; position: absolute; top: -13px; left: 50%; width: 86px; height: 28px;
+    background: rgba(214, 204, 178, .6); transform: translateX(calc(-50% + var(--tx, 0px))) rotate(var(--tr, 0deg));
+  }
+  .sticky:hover { transform: rotate(0deg) translateY(-4px); }
+  .sticky .txt { flex: 1; overflow-y: auto; font-family: var(--garamond); font-size: 21px; line-height: 1.45; color: #2a261f; white-space: pre-line; overflow-wrap: anywhere; scrollbar-width: thin; }
+  .sticky .by { margin-top: 16px; font-size: 13px; color: #6a6355; }
+  .sticky.fresh { animation: pin .7s ease; }
+  @keyframes pin { from { opacity: 0; transform: translateY(-18px) rotate(calc(var(--r, 0deg) - 4deg)); } }
+
+  /* ---------- Footer ---------- */
+  footer { background: var(--ink); color: var(--cream); margin-top: 80px; }
+  footer .wrap { padding-top: 70px; padding-bottom: 40px; }
+  footer .big { font-family: var(--serif); font-weight: 400; font-size: clamp(56px, 9vw, 132px); line-height: .9; letter-spacing: -.03em; }
+  footer .big .dot { color: var(--soft); }
+  footer .row { display: flex; justify-content: space-between; gap: 20px; margin-top: 48px; padding-top: 22px; border-top: 1px solid oklch(100% 0 0 / .14); font-family: var(--mono); font-size: 12px; color: oklch(100% 0 0 / .6); }
+
+footer .social { display: inline-flex; align-items: center; color: oklch(100% 0 0 / .6); transition: color .25s; }
+  footer .social:hover { color: var(--cream); }
+
+  /* ---------- Reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 1s ease, transform 1s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .ribbon .track { animation: none; }
+    html { scroll-behavior: auto; }
+    .mem-track { scroll-behavior: auto; }
+    .sticky.fresh { animation: none; }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1000px) {
+    .hero-grid, .evening-grid, .forum-grid, .intro-grid { grid-template-columns: 1fr; gap: 48px; }
+    .arch { max-width: 420px; }
+    .invite { position: static; max-width: 420px; }
+    .hands-grid { grid-template-columns: 1fr 1fr; }
+    .intro .more { columns: 1; }
+    .gallery { columns: 2; }
+    .mem-track { --gap: 28px; grid-auto-columns: calc((100% - var(--gap)) / 2); }
+  }
+  @media (max-width: 720px) {
+    .wrap { padding: 0 22px; }
+    nav a:not(.pill) { display: none; }
+    .chapter { grid-template-columns: 1fr; gap: 28px; }
+    .chapter:nth-child(even) .visual { order: 0; }
+    .head { flex-direction: column; align-items: flex-start; }
+    .head h2, .forum h2, .event-title { font-size: 40px; }
+    .facts, .duo, .hands-grid, .kinds, .compose .row, .notes-grid { grid-template-columns: 1fr; }
+    .facts div + div { border-left: 0; border-top: 1px solid var(--border); }
+    .essay-list a { grid-template-columns: 44px 1fr; }
+    .essay-list span { font-size: 22px; }
+    .gallery { columns: 1; }
+    .arch .badge { left: 12px; }
+    footer .row { flex-direction: column; }
+    .mem-track { --gap: 22px; grid-auto-columns: 84%; }
+    .mem-top { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="assets/logo.png" alt=""><span>Eudaimonia</span></a>
+    <nav aria-label="Primary">
+      <a href="#story">His story</a>
+      <a href="#moments">Moments</a>
+      <a href="#evening">19 October</a>
+      <a href="#essays">Essays</a>
+      <a href="#forum">Contribute</a>
+      <a class="pill" href="#evening">Join the evening</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="reveal">
+        <p class="eyebrow"><b>The</b> Eudaimonias Project</p>
+        <h1>In memory<br>of <em>Nirmit</em></h1>
+        <p class="sub">Nirmit lives through his words.<br>Always curious. Always becoming.</p>
+        <div class="dates"><span>19 OCTOBER 2001</span><i></i><span>25 AUGUST 2026</span></div>
+        <div class="hero-ctas">
+          <a class="btn solid" href="#evening">An evening for Nirmit on 19 Oct
+            <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M0 5h12.5M8.5 1l4 4-4 4"/></svg></a>
+          <a class="btn ghost" href="#essays">Read his essays</a>
+        </div>
+      </div>
+      <div class="arch reveal">
+        <div class="ring"></div>
+        <div class="frame"><img src="assets/nirmit-portrait.jpg" alt="Nirmit smiling in front of a classical street mural"></div>
+        <div class="badge"><b>Twenty-five</b>on 19 October 2026</div>
+      </div>
+    </div>
+    <div class="ribbon" aria-hidden="true">
+      <div class="track">
+        <span>εὐδαιμονία</span><span>a life well lived</span><span>one step at a time</span><span>notice, then move</span><span>learn to live</span>
+        <span>εὐδαιμονία</span><span>a life well lived</span><span>one step at a time</span><span>notice, then move</span><span>learn to live</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INTRO ============ -->
+  <section class="intro" id="story">
+    <div class="wrap intro-grid">
+      <p class="eyebrow reveal">A life well lived.<br>A legacy still growing.</p>
+      <div class="reveal">
+        <p class="lede">Some lives leave you with more to carry forward than memories alone. Nirmit’s was guided by <em>curiosity, purpose</em> and a belief in becoming a little better, one step at a time.</p>
+        <div class="more">
+          <p>Though his time with us was far too short, the ideas he believed in, the work he began and the words he left behind continue to offer glimpses of the way he saw and lived in the world.</p>
+          <p>At twenty-four, he built this site and called it Eudaimonia, after the Greek word for flourishing: a life well lived. It was a reflection of how he wanted to live, with intention, curiosity and the patience to build something meaningful over time.</p>
+          <p>What follows is a glimpse into that life, and into the ideas and values that mattered to him.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ JOURNEY ============ -->
+  <section class="journey">
+    <div class="wrap">
+      <div class="head reveal">
+        <div><p class="eyebrow"><b>01</b> / A life in chapters</p><h2>Nirmit’s <em>Journey</em></h2></div>
+        <p>Four chapters of a life built deliberately — in work, with people, and in what he left for others to carry on.</p>
+      </div>
+
+      <div class="chapters">
+        <article class="chapter reveal">
+          <div class="visual"><span class="no">01</span><img src="assets/photos/sitting-lanterns.jpg" alt="Nirmit sitting cross-armed, smiling, under warm lantern light" style="object-position:50% 35%" loading="lazy"></div>
+          <div>
+            <div class="num">01</div>
+            <h3>A life, intentionally built</h3>
+            <p>Nirmit was twenty-four when he built this site. He called it Eudaimonia, after the Greek word for flourishing: a life well lived. Growth sat at the centre of how he lived. He believed progress comes in small steps, and that a good life is assembled slowly rather than arriving all at once.<span class="rest"> To the Greeks, eudaimonia was something reached through action rather than granted by chance, and Nirmit took the same view. He took active control of his life and made the choices that would let it flourish. This site is his demonstration of that approach — a working model of how he believed a life should be built.</span></p>
+            <button class="read">Read more +</button>
+          </div>
+        </article>
+
+        <article class="chapter reveal">
+          <div class="visual"><span class="no">02</span><img src="assets/photos/graduation.jpg" alt="Nirmit in his King’s College London graduation gown, 2024" style="object-position:50% 20%" loading="lazy"></div>
+          <div>
+            <div class="num">02</div>
+            <h3>Curiosity into purpose</h3>
+            <p>He pursued it the same way in his work as in himself: one step at a time. In 2020 he went to King’s College London to read biomedical engineering, and found in medtech a field that rewarded curiosity, patience and a readiness to learn. He graduated with first-class honours in 2024.<span class="rest"> It shaped the entrepreneurial mindset he built over the following years — the drive to do what others had not yet done. That was behind his dream of a wearable device that would make everyday life easier, and he kept testing himself against it: research, study, several startups, each challenge treated as the route to the next step. He co-founded Shine Blue to build a low-cost treatment for newborn jaundice, designed for clinics that could not afford the alternative, and later helped take a healthcare wearable through its clinical trials. The thread never changed. Technology should reach the people who need it.</span></p>
+            <button class="read">Read more +</button>
+          </div>
+        </article>
+
+        <article class="chapter reveal">
+          <div class="visual"><span class="no">03</span><img src="assets/photos/friends-party.jpg" alt="Nirmit with friends, arms around each other" style="object-position:50% 40%" loading="lazy"></div>
+          <div>
+            <div class="num">03</div>
+            <h3>A life built with others</h3>
+            <p>Nirmit was as committed to people as he was to his goals. He believed a good life is built with others, so he listened to those around him, learned from them and supported them.<span class="rest"> He was one of the founding members of Operators, a community for young people working in startups, and he did far more than attend: he brought his own friends in, made the introductions and welcomed the newcomers, long before anyone thought to give that role a name. What began as a few strangers in a pub is still growing, and much of what it became was his doing. He was always available to listen and to give advice, which made him a constant presence in the lives of those around him: someone to turn to, and a pillar of both honest challenge and support. By his example he taught patience, a virtue easily overlooked and necessary to the long path he had chosen.</span></p>
+            <button class="read">Read more +</button>
+          </div>
+        </article>
+
+        <article class="chapter reveal">
+          <div class="visual"><span class="no">04</span><img src="assets/photos/speaking.jpg" alt="Nirmit speaking into a microphone at a celebration" style="object-position:50% 25%" loading="lazy"></div>
+          <div>
+            <div class="num">04</div>
+            <h3>What we carry forward</h3>
+            <p>This site is the clearest expression of how he lived — ambitious and patient, always moving forward, always with people alongside him. It is also a legacy that lives on in the people he touched. Those he spoke with, mentored and supported can carry it forward by adding to it, so that the values he lived by keep growing, one step at a time.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MOTTO ============ -->
+  <section class="motto">
+    <div class="wrap reveal">
+      <p><span>Notice.</span><span>Then move.</span><span>Learn to live.</span></p>
+    </div>
+    <img src="assets/logo.png" alt="">
+  </section>
+
+  <!-- ============ MOMENTS ============ -->
+  <section class="moments" id="moments">
+    <div class="wrap">
+      <div class="head reveal">
+        <div><p class="eyebrow"><b>Moments</b> / Always becoming</p><h2>A life, <em>in pictures</em></h2></div>
+        <p>With family, with friends, and on his own — a few of the moments the people around him will carry forward.</p>
+      </div>
+      <div class="gallery reveal">
+        <figure><img src="assets/photos/graduation-family.jpg" alt="Nirmit at his graduation with his family" loading="lazy"><figcaption>Graduation day, with family</figcaption></figure>
+        <figure><img src="assets/photos/nirmit-4.webp" alt="Nirmit giving a thumbs up among friends on a busy London street" width="1200" height="1600" loading="lazy"><figcaption>Exmouth Market, with friends</figcaption></figure>
+        <figure><img src="assets/photos/candles.jpg" alt="Nirmit smiling beside rows of lit candles" loading="lazy"><figcaption>Among the lights</figcaption></figure>
+        <figure><img src="assets/photos/portrait-festive.jpg" alt="Portrait of Nirmit in a maroon turban beside a lit tree" loading="lazy"><figcaption>Celebrations</figcaption></figure>
+        <figure><img src="assets/photos/nirmit-5.webp" alt="Nirmit in a blue shirt above a valley of red hills" width="1200" height="1600" loading="lazy"><figcaption>In the mountains</figcaption></figure>
+        <figure><img src="assets/photos/group-riverside.jpg" alt="Nirmit with a group of friends dressed up by the river" loading="lazy"><figcaption>By the river, with friends</figcaption></figure>
+        <figure><img src="assets/photos/desert-camp.jpg" alt="Nirmit relaxing at a desert camp" loading="lazy"><figcaption>Travelling</figcaption></figure>
+        <figure><img src="assets/photos/nirmit-1.webp" alt="Nirmit smiling in a selfie on a rocky summit above Edinburgh" width="1536" height="1024" loading="lazy"><figcaption>At the top, Edinburgh</figcaption></figure>
+        <figure><img src="assets/photos/friends-evening.jpg" alt="Nirmit with friends on an evening out" loading="lazy"><figcaption>An evening out</figcaption></figure>
+        <figure><img src="assets/photos/nirmit-3.webp" alt="Nirmit smiling under strings of glowing lights at night" width="1200" height="1600" loading="lazy"><figcaption>Winter lights</figcaption></figure>
+        <figure><img src="assets/photos/everyday.jpg" alt="Nirmit standing on a driveway with a backpack, thumbs up" loading="lazy"><figcaption>Every day, one step at a time</figcaption></figure>
+        <figure><img src="assets/photos/nirmit-2.webp" alt="Nirmit in a blue shirt on a sunny hillside" width="1200" height="1600" loading="lazy"><figcaption>Under a clear sky</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+    <button class="lb-close" aria-label="Close">×</button>
+    <img alt="">
+    <p class="lb-cap"></p>
+  </dialog>
+
+  <!-- ============ THE EVENING ============ -->
+  <section class="evening" id="evening">
+    <div class="wrap">
+      <div class="head reveal">
+        <div><p class="eyebrow"><b>02</b> / His 25th birthday</p><h2>An evening <em>for Nirmit</em></h2></div>
+        <p>On his birthday we are launching his site properly, as The Eudaimonias Project — in a room full of the people he spent his time with.</p>
+      </div>
+
+      <div class="evening-grid">
+        <aside class="invite reveal">
+          <a href="assets/invitation.jpg" target="_blank" rel="noopener" aria-label="Open the invitation">
+            <img src="assets/invitation.jpg" alt="Invitation: The Eudaimonias Project — Monday, 19 October 2026, King’s College London 6.30–8.30pm, The Last Judgement 8.30–10pm">
+          </a>
+          <p class="cap">THE INVITATION · CLICK TO ENLARGE</p>
+        </aside>
+
+        <div>
+          <div class="reveal">
+            <p class="event-title">Monday, 19 October</p>
+            <p class="event-sub">Nirmit would have been twenty-five.</p>
+
+            <div class="facts">
+              <div><small>Date</small><strong>Mon, 19 Oct 2026</strong><span>His 25th birthday</span></div>
+              <div><small>The evening</small><strong>The Council Room</strong><span>King’s College London</span><span>6.30 – 8.30pm</span></div>
+              <div><small>After</small><strong>The Last Judgement</strong><span>8.30 – 10pm</span></div>
+            </div>
+
+            <div class="event-copy">
+              <p>We are gathering in London that evening to mark it, and to put something of his into the world.</p>
+              <p>In the spring he built a website. He told people it existed; he never told anyone what was in it. He called it Eudaimonia, the Greek word for a life well lived. It is the clearest thing he left, and on his birthday we are sharing it with everyone, as <strong>The Eudaimonias Project</strong>, and building a community that will contribute to it.</p>
+              <p>He built it in three parts, after the Greek: Episteme, what he had learned; Theoria, what he made of it; Pragma, what he was doing about it. He left Pragma unfinished.</p>
+              <p>King’s have given us the Council Room at the Strand campus — the building he walked into most days for four years. We would like it full of the people he spent his time with.</p>
+            </div>
+          </div>
+
+          <div class="timeline reveal">
+            <h4>The shape of the evening</h4>
+            <ol>
+              <li><time>18:30</time><div><b>Arrive</b><span>Drinks and something to eat. Come straight from work.</span></div></li>
+              <li><time>19:00</time><div><b>Welcome</b><span>Harkirit, Nirmit’s father. Five minutes.</span></div></li>
+              <li class="key"><time>19:10</time><div><b>The Project goes live</b><span>The site shared with everyone, in the room, that evening.</span></div></li>
+              <li><time>19:20</time><div><b>The reading</b><span>From the book he was in the middle of. Three or four readers, picking up where he stopped.</span></div></li>
+              <li><time>19:40</time><div><b>Open floor</b><span>Anyone who wants to say something. No order, no pressure.</span></div></li>
+              <li><time>19:55</time><div><b>The cards</b><span>Explained below. Two minutes.</span></div></li>
+              <li class="key"><time>20:05</time><div><b>A toast</b><span>Twenty-five today.</span></div></li>
+              <li><time>20:10</time><div><b>Reflections and Conversations</b><span>The point of the evening.</span></div></li>
+              <li class="venue-break">Then on to</li>
+              <li><time>20:30</time><div><b>To the pub</b><span>The Last Judgment, 95 Chancery Lane. We walk over together.</span></div></li>
+            </ol>
+          </div>
+
+          <div class="duo reveal">
+            <div class="block">
+              <h4>The reading</h4>
+              <p class="big">“Currently reading — Nineteen Eighty-Four.”</p>
+              <p>On his site Nirmit kept a shelf of what he had been reading. Beside Orwell’s Nineteen Eighty-Four it still says: Currently Reading – forty per cent. He did not get to finish it — so that evening we will.</p>
+              <div class="progress"><i></i></div>
+              <span class="progress-label">40% — we pick up from here</span>
+              <p style="margin-top:14px">Three or four people read aloud from the page he stopped at, a few pages each, then the book stays open on the table for anyone who wants to carry on. We will keep that copy. If you read from it, put your name in the front.</p>
+            </div>
+            <div class="block">
+              <h4>The cards</h4>
+              <p class="big">Pragma — the part he left unfinished.</p>
+              <p>Pragma, the third part of his site, is the present tense — what he was building and thinking about at that moment. He left it unfinished.</p>
+              <p>There will be cards and pens on the tables. Before you leave, please write one thing: something he said to you, something he started in you, something you are going to do about it. Put it in the box by the door.</p>
+              <p>Those cards go into the section he never finished. They will be the first things in it. His parents will also, that night, learn fifty things about their son that they did not know.</p>
+            </div>
+          </div>
+
+          <div class="event-actions reveal">
+            <a class="btn solid" href="assets/nirmit-evening-plan.docx" download>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+              Download the evening plan</a>
+            <a class="btn ghost" href="#hands">Offer to help</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHERE WE NEED HANDS ============ -->
+  <section class="hands" id="hands">
+    <div class="wrap">
+      <div class="head reveal">
+        <div><p class="eyebrow"><b>03</b> / Where we need hands</p><h2>Take one, <em>it is yours</em></h2></div>
+        <p>The date is close and most of this needs doing in the next few days. If you can take one of these, say so.</p>
+      </div>
+      <div class="hands-grid reveal">
+        <div class="hand"><span class="i">01</span><b>Three or four readers</b><p>For the book. You do not need to prepare — just be willing to read a few pages aloud.</p></div>
+        <div class="hand"><span class="i">02</span><b>Photographs</b><p>Someone discreet with a camera. We will want them afterwards, even though none of us feels like being photographed.</p></div>
+        <div class="hand"><span class="i">03</span><b>The door</b><p>Two people to welcome everyone, hand out cards and look after the box.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRACTICAL NOTES & RSVP ============ -->
+  <section class="notes" id="rsvp">
+    <div class="wrap">
+      <div class="head reveal">
+        <div><p class="eyebrow"><b>04</b> / Before you come</p><h2>Practical notes, <em>and let us know</em></h2></div>
+        <p>A couple of things to keep in mind, and who to tell that you are coming.</p>
+      </div>
+      <div class="notes-grid reveal">
+        <div class="block">
+          <h4>Practical notes</h4>
+          <ul class="rules">
+            <li>No dress code. Nothing black. It is his birthday.</li>
+            <li>Bring someone who knew him, even if we have not reached them — especially if we have not reached them.</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Please let us know</h4>
+          <p>WhatsApp whichever of us is easiest, or send an email. Tell us your name and whether you are bringing anyone.</p>
+          <ul class="contacts">
+            <li><span class="who">Francesca Serena</span><a class="tel" href="tel:+393333948465">+39 333 394 8465</a><a class="wa" href="https://wa.me/393333948465" target="_blank" rel="noopener">WhatsApp</a></li>
+            <li><span class="who">Harkirit Singh</span><a class="tel" href="tel:+447770951326">+44 7770 951326</a><a class="wa" href="https://wa.me/447770951326" target="_blank" rel="noopener">WhatsApp</a></li>
+            <li><span class="who">Neetu Singh</span><a class="tel" href="tel:+447808181850">+44 7808 181850</a><a class="wa" href="https://wa.me/447808181850" target="_blank" rel="noopener">WhatsApp</a></li>
+          </ul>
+          <a class="mail" href="mailto:nirmitmemoirs@gmail.com">nirmitmemoirs@gmail.com</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ESSAYS ============ -->
+  <section class="essays" id="essays">
+    <div class="wrap">
+      <div class="head reveal" style="border-color:color-mix(in oklch, var(--paper-ink) 18%, transparent)">
+        <div><p class="eyebrow"><b>Episteme</b> / His words live on</p><h2>Essays written by Nirmit</h2></div>
+        <!-- <p>Written for no audience and no reward, simply because he had something to work out.</p> -->
+      </div>
+      <ol class="essay-list reveal">
+        <li><a href="https://www.eudaimonias.me/essays/what-makes-a-modern-man.html" target="_blank" rel="noopener"><span>What makes a modern man</span><svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M0 7h20M14 1l6 6-6 6"/></svg></a></li>
+        <li><a href="https://www.eudaimonias.me/essay/build-your-life-around-what-you-need-not-what-you-want" target="_blank" rel="noopener"><span>Build your life around what you need, not what you want</span><svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M0 7h20M14 1l6 6-6 6"/></svg></a></li>
+        <li><a href="https://www.eudaimonias.me/essay/perfection-is-the-killer-of-speed-unless-its-the-911" target="_blank" rel="noopener"><span>Perfection is the killer of speed, unless it’s the 911</span><svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M0 7h20M14 1l6 6-6 6"/></svg></a></li>
+        <li><a href="https://www.eudaimonias.me/essay/death-complacency" target="_blank" rel="noopener"><span>Death = Complacency</span><svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M0 7h20M14 1l6 6-6 6"/></svg></a></li>
+        <li><a href="https://www.eudaimonias.me/essay/surrounded-by-idiots" target="_blank" rel="noopener"><span>Surrounded by Idiots</span><svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M0 7h20M14 1l6 6-6 6"/></svg></a></li>
+        <li><a href="https://www.eudaimonias.me/essay/waffle-is-how-you-get-rich" target="_blank" rel="noopener"><span>Waffle is how you get rich</span><svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M0 7h20M14 1l6 6-6 6"/></svg></a></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ FORUM ============ -->
+  <section class="forum" id="forum">
+    <div class="wrap forum-grid">
+      <div class="copy reveal">
+        <p class="eyebrow"><b>05</b> / The story continues with you</p>
+        <h2>Contribute to <em>the Forum</em></h2>
+        <p>This forum is an open space for blogs, essays, reflections, ideas, stories, memories, or any other writing you would like to contribute. You can write about Nirmit, something you learned from him, an experience you shared, an idea that stayed with you, or simply something you believe belongs here.</p>
+        <p>Whether it is a short reflection or a longer piece, we invite you to contribute and help keep this space growing, one submission at a time.</p>
+      </div>
+      <div class="reveal">
+        <div class="kinds">
+          <button class="kind" type="button" id="kind-memory" aria-controls="compose" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><b>A memory</b><small>A moment you shared</small></button>
+          <a class="kind" href="https://essay.eudaimonias.me/login/?action=register" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></svg><b>Theoria</b><small>Analysis of a book that stayed with you</small></a>
+          <a class="kind" href="https://essay.eudaimonias.me/login/?action=register" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z"/><path d="M16 8 2 22M17.5 15H9"/></svg><b>Episteme</b><small>An essay, poem or story</small></a>
+          <a class="kind" href="https://essay.eudaimonias.me/login/?action=register" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8zM14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg><b>Pragma</b><small>An idea &amp; action taken towards it</small></a>
+        </div>
+
+        <form class="compose" id="compose" novalidate>
+          <div class="row">
+            <div><label for="f-name">Your name</label><input id="f-name" name="name" maxlength="80" autocomplete="name" required></div>
+            <div><label for="f-email">Email</label><input id="f-email" name="email" type="email" maxlength="160" autocomplete="email" required></div>
+          </div>
+          <label for="f-body">Your memory</label>
+          <textarea id="f-body" name="text" maxlength="1200" required></textarea>
+          <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
+          <button class="btn solid" type="submit">Share your memory</button>
+          <p class="note" role="status" aria-live="polite">Your email stays private. Only your name and memory are shown.</p>
+        </form>
+
+        <details class="disclaimer">
+          <summary>Submission disclaimer</summary>
+          <p>All submissions are subject to moderator review before being published on the website. Content will be published only if it meets the forum’s submission guidelines and is approved by the moderator.</p>
+          <p>Please submit only original content or content that you have the necessary rights and permissions to share. Submissions containing plagiarised, copied, misleading, defamatory or otherwise unauthorised content will not be approved.</p>
+          <p>By submitting content, you confirm that you are the original author or have the necessary rights and permissions to submit and publish the material. The person submitting the content is solely responsible for their submission and may be held liable for any claims, disputes, or consequences arising from plagiarised or unauthorised content.</p>
+          <p>Submission does not guarantee publication. The forum reserves the right to edit, decline, or remove any submission at its discretion.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MEMORIES OF NIRMIT (hidden until the first memory is shared) ============ -->
+  <section class="memories" id="memories" aria-labelledby="mem-title" hidden>
+    <div class="wrap">
+      <div class="mem-top">
+        <div>
+          <h2 id="mem-title">Memories of <em>Nirmit</em></h2>
+          <p>A little of him, in the words of those who knew him.</p>
+        </div>
+        <div class="mem-nav" id="mem-nav" hidden>
+          <button type="button" id="mem-prev" aria-label="Previous memories"><svg width="16" height="12" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14 5H1.5M5.5 1l-4 4 4 4"/></svg></button>
+          <button type="button" id="mem-next" aria-label="Next memories"><svg width="16" height="12" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M0 5h12.5M8.5 1l4 4-4 4"/></svg></button>
+        </div>
+      </div>
+      <div class="mem-track" id="mem-track" tabindex="0" aria-label="Memories, scroll sideways for more"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="big">Eudaimonia</p>
+     <div class="row">
+      <span>In memory of Nirmit. One step at a time.</span>
+      <span>eudaimonias.me</span>
+      
+      <span>εὐδαιμονία</span>
+      <a class="social" href="https://www.linkedin.com/company/eudaimonias/home/" target="_blank" rel="noopener" aria-label="Nirmit on LinkedIn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Header border once scrolled
+  const hdr = document.getElementById('hdr');
+  addEventListener('scroll', () => hdr.classList.toggle('scrolled', scrollY > 10), { passive: true });
+
+  // Chapter "Read more"
+  document.querySelectorAll('.chapter .read').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const open = btn.closest('.chapter').classList.toggle('open');
+      btn.textContent = open ? 'Read less −' : 'Read more +';
+    });
+  });
+
+  // Forum: "A memory" opens the form (the other three cards link out to essay.eudaimonias.me)
+  const compose = document.getElementById('compose');
+  const kindMemory = document.getElementById('kind-memory');
+  kindMemory.addEventListener('click', () => {
+    const show = !compose.classList.contains('show');
+    compose.classList.toggle('show', show);
+    kindMemory.classList.toggle('active', show);
+    kindMemory.setAttribute('aria-expanded', String(show));
+    if (show) compose.querySelector('input').focus({ preventScroll: true });
+  });
+
+  // ---------- Memories of Nirmit ----------
+  // Memories endpoint on the WordPress site (custom REST route)
+  const MEM_API = 'https://essay.eudaimonias.me/wp-json/eud/v1/memories';
+  const MEM_READY = MEM_API.startsWith('https://');
+  const memSection = document.getElementById('memories');
+  const memTrack = document.getElementById('mem-track');
+  const memNav = document.getElementById('mem-nav');
+  const memPrev = document.getElementById('mem-prev');
+  const memNext = document.getElementById('mem-next');
+  const NOTE_COLOURS = ['#ece4d4', '#e8e6e0', '#efe2de', '#ebe6dc', '#e6e4dc', '#eee5d2'];
+  const NOTE_TILT = [-2.4, 1.8, -1.3, 2.2, -1.9, 1.2];
+  const TAPE_TILT = [-5, 0, -3, 4, -2, 6];
+  let memories = [];
+
+  function stickyNote(m, i, fresh) {
+    const el = document.createElement('article');
+    el.className = 'sticky' + (fresh ? ' fresh' : '');
+    el.style.setProperty('--note', NOTE_COLOURS[i % NOTE_COLOURS.length]);
+    el.style.setProperty('--r', NOTE_TILT[i % NOTE_TILT.length] + 'deg');
+    el.style.setProperty('--tr', TAPE_TILT[i % TAPE_TILT.length] + 'deg');
+    el.style.setProperty('--tx', ((i % 3) - 1) * 26 + 'px');
+    const txt = document.createElement('p'); txt.className = 'txt'; txt.textContent = m.text;
+    const by = document.createElement('p'); by.className = 'by'; by.textContent = '— ' + m.name;
+    el.append(txt, by);
+    return el;
+  }
+
+  function updateMemNav() {
+    const max = memTrack.scrollWidth - memTrack.clientWidth;
+    memNav.hidden = max <= 4;
+    memPrev.disabled = memTrack.scrollLeft <= 4;
+    memNext.disabled = memTrack.scrollLeft >= max - 4;
+  }
+
+  function renderMemories(freshId) {
+    memTrack.replaceChildren(...memories.map((m, i) => stickyNote(m, i, m.id === freshId)));
+    memSection.hidden = memories.length === 0;
+    requestAnimationFrame(updateMemNav);
+  }
+
+  memPrev.addEventListener('click', () => memTrack.scrollBy({ left: -memTrack.clientWidth }));
+  memNext.addEventListener('click', () => memTrack.scrollBy({ left: memTrack.clientWidth }));
+  memTrack.addEventListener('scroll', updateMemNav, { passive: true });
+  addEventListener('resize', updateMemNav);
+
+  if (MEM_READY) fetch(MEM_API, { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : { memories: [] })
+    .then(d => { memories = Array.isArray(d.memories) ? d.memories : []; renderMemories(); })
+    .catch(() => {});
+
+  compose.addEventListener('submit', async e => {
+    e.preventDefault();
+    const note = compose.querySelector('.note');
+    const btn = compose.querySelector('button[type="submit"]');
+    if (!compose.checkValidity()) {
+      note.textContent = 'Add your name, a valid email and your memory, then share it.';
+      compose.querySelector(':invalid').focus();
+      return;
+    }
+    if (!MEM_READY) { note.textContent = 'The memory wall is not connected yet.'; return; }
+    btn.disabled = true;
+    note.textContent = 'Sharing your memory…';
+    try {
+      const res = await fetch(MEM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, // WordPress only parses JSON bodies sent as application/json
+        body: JSON.stringify({
+          name: compose.elements.name.value,
+          email: compose.elements.email.value,
+          text: compose.elements.text.value,
+          website: compose.elements.website.value
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Your memory could not be shared.');
+      compose.reset();
+      if (data.memory) {
+        memories.unshift(data.memory);
+        renderMemories(data.memory.id);
+        memTrack.scrollTo({ left: 0 });
+        note.textContent = 'Thank you. Your memory is now on the wall below.';
+        memSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        note.textContent = 'Thank you. Your memory will appear once it has been reviewed.';
+      }
+    } catch (err) {
+      note.textContent = err.message + ' Please try again.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // Gallery lightbox
+  const lb = document.getElementById('lightbox');
+  document.querySelectorAll('.gallery figure').forEach(fig => {
+    fig.addEventListener('click', () => {
+      const img = fig.querySelector('img');
+      lb.querySelector('img').src = img.src;
+      lb.querySelector('img').alt = img.alt;
+      lb.querySelector('.lb-cap').textContent = fig.querySelector('figcaption').textContent;
+      lb.showModal();
+    });
+  });
+  lb.addEventListener('click', e => { if (e.target === lb || e.target.classList.contains('lb-close')) lb.close(); });
+
+  // Scroll reveal
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
