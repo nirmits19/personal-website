@@ -247,6 +247,7 @@
   .kind small { color: var(--muted-foreground); font-size: 13px; }
   .compose { margin-top: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 24px; display: none; }
   .compose.show { display: block; }
+  .compose { scroll-margin-top: 88px; } /* clear the sticky header when scrolled into view */
   .compose label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-foreground); margin: 12px 0 6px; }
   .compose input, .compose textarea { width: 100%; font: inherit; font-size: 15px; background: var(--background); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; color: var(--foreground); }
   .compose textarea { min-height: 120px; resize: vertical; }
@@ -474,17 +475,17 @@ footer .social { display: inline-flex; align-items: center; color: oklch(100% 0 
         <p>With family, with friends, and on his own — a few of the moments the people around him will carry forward.</p>
       </div>
       <div class="gallery reveal">
-        <figure><img src="assets/photos/graduation-family.jpg" alt="Nirmit at his graduation with his family" loading="lazy"><figcaption>Graduation day, with family</figcaption></figure>
+        <figure><img src="assets/photos/graduation-family.jpg" alt="Nirmit at his graduation with his family" width="1600" height="1280" loading="lazy"><figcaption>Graduation day, with family</figcaption></figure>
         <figure><img src="assets/photos/nirmit-4.webp" alt="Nirmit giving a thumbs up among friends on a busy London street" width="1200" height="1600" loading="lazy"><figcaption>Exmouth Market, with friends</figcaption></figure>
-        <figure><img src="assets/photos/candles.jpg" alt="Nirmit smiling beside rows of lit candles" loading="lazy"><figcaption>Among the lights</figcaption></figure>
-        <figure><img src="assets/photos/portrait-festive.jpg" alt="Portrait of Nirmit in a maroon turban beside a lit tree" loading="lazy"><figcaption>Celebrations</figcaption></figure>
+        <figure><img src="assets/photos/candles.jpg" alt="Nirmit smiling beside rows of lit candles" width="1200" height="1600" loading="lazy"><figcaption>Among the lights</figcaption></figure>
+        <figure><img src="assets/photos/portrait-festive.jpg" alt="Portrait of Nirmit in a maroon turban beside a lit tree" width="1600" height="1067" loading="lazy"><figcaption>Celebrations</figcaption></figure>
         <figure><img src="assets/photos/nirmit-5.webp" alt="Nirmit in a blue shirt above a valley of red hills" width="1200" height="1600" loading="lazy"><figcaption>In the mountains</figcaption></figure>
-        <figure><img src="assets/photos/group-riverside.jpg" alt="Nirmit with a group of friends dressed up by the river" loading="lazy"><figcaption>By the river, with friends</figcaption></figure>
-        <figure><img src="assets/photos/desert-camp.jpg" alt="Nirmit relaxing at a desert camp" loading="lazy"><figcaption>Travelling</figcaption></figure>
+        <figure><img src="assets/photos/group-riverside.jpg" alt="Nirmit with a group of friends dressed up by the river" width="1600" height="1067" loading="lazy"><figcaption>By the river, with friends</figcaption></figure>
+        <figure><img src="assets/photos/desert-camp.jpg" alt="Nirmit relaxing at a desert camp" width="1200" height="1600" loading="lazy"><figcaption>Travelling</figcaption></figure>
         <figure><img src="assets/photos/nirmit-1.webp" alt="Nirmit smiling in a selfie on a rocky summit above Edinburgh" width="1536" height="1024" loading="lazy"><figcaption>At the top, Edinburgh</figcaption></figure>
-        <figure><img src="assets/photos/friends-evening.jpg" alt="Nirmit with friends on an evening out" loading="lazy"><figcaption>An evening out</figcaption></figure>
+        <figure><img src="assets/photos/friends-evening.jpg" alt="Nirmit with friends on an evening out" width="563" height="422" loading="lazy"><figcaption>An evening out</figcaption></figure>
         <figure><img src="assets/photos/nirmit-3.webp" alt="Nirmit smiling under strings of glowing lights at night" width="1200" height="1600" loading="lazy"><figcaption>Winter lights</figcaption></figure>
-        <figure><img src="assets/photos/everyday.jpg" alt="Nirmit standing on a driveway with a backpack, thumbs up" loading="lazy"><figcaption>Every day, one step at a time</figcaption></figure>
+        <figure><img src="assets/photos/everyday.jpg" alt="Nirmit standing on a driveway with a backpack, thumbs up" width="1200" height="1600" loading="lazy"><figcaption>Every day, one step at a time</figcaption></figure>
         <figure><img src="assets/photos/nirmit-2.webp" alt="Nirmit in a blue shirt on a sunny hillside" width="1200" height="1600" loading="lazy"><figcaption>Under a clear sky</figcaption></figure>
       </div>
     </div>
@@ -732,7 +733,15 @@ footer .social { display: inline-flex; align-items: center; color: oklch(100% 0 
     compose.classList.toggle('show', show);
     kindMemory.classList.toggle('active', show);
     kindMemory.setAttribute('aria-expanded', String(show));
-    if (show) compose.querySelector('input').focus({ preventScroll: true });
+    if (!show) return;
+    const input = compose.querySelector('input');
+    // On mobile the cards stack, so the form opens below the fold — bring it into view
+    if (matchMedia('(max-width: 720px)').matches) {
+      compose.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => input.focus({ preventScroll: true }), 400);
+    } else {
+      input.focus({ preventScroll: true });
+    }
   });
 
   // ---------- Memories of Nirmit ----------
